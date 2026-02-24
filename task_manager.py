@@ -124,7 +124,7 @@ class Task:
         self.description = description
         self.assigned_date = assigned_date
         self.due_date = due_date
-        self.is_completed = False
+        self.is_complete = False
 
     def to_csv_string(self) -> str:
         """
@@ -135,12 +135,12 @@ class Task:
         :return: A string of all the assigned values in the object
         :rtype: str
         """
-        task_status = "Yes" if self.is_completed else "No"
+        task_status = "Yes" if self.is_complete else "No"
         return f"{self.assigned_by}, {self.assigned_to}, {self.title}, {self.description}, {self.assigned_date}, {self.due_date}, {task_status}"
 
     def complete_task(self):
         """Set `is_completed` to True."""
-        self.is_completed = True
+        self.is_complete = True
 
 
 class TaskManager:
@@ -311,7 +311,7 @@ def register_user():
 
 def view_all_tasks():
     """Print all tasks to the command line in a neat formatted manner."""
-    # This is used for styling the width of hte printout
+    # This is used for styling the width of the printout
     print_width = 70
     print("_" * print_width)
 
@@ -348,9 +348,160 @@ def view_all_tasks():
             print("_" * print_width)
 
 
+def view_mine(current_user: User | Admin):
+    """Print only the current users tasks to the command line in a neat formatted manner."""
+    print_width = 70
+    task_count = 0
+
+    # Making two lists because one will handle the edits to the current users tasks
+    # and the other will handle writing all updated tasks to the tasks file
+    all_tasks: list[Task] = []
+    my_tasks: list[Task] = []
+
+    with Path.open(TASKS_FILE_PATH) as tasks_file:
+        parts = []
+        for line in tasks_file:
+            parts = line.strip().split(", ")
+
+            if len(parts) != EXPECTED_TASKS_FIELDS:
+                continue
+
+            (
+                assigned_by,
+                assigned_to,
+                title,
+                description,
+                date_assigned,
+                due_date,
+                is_complete,
+            ) = parts
+
+            new_task = Task(
+                assigned_by,
+                assigned_to,
+                title,
+                description,
+                date_assigned,
+                due_date,
+            )
+
+            if is_complete == "Yes":
+                new_task.complete_task()
+
+            all_tasks.append(new_task)
+
+            # skipping tasks that are not assigned to current user
+            if assigned_to != current_user.username:
+                continue
+
+            my_tasks.append(new_task)
+
+            task_count += 1
+
+    if task_count == 0:
+        print("You have no tasks assigned to you...")
+        return
+
+    print(f"Number of tasks assigned to you: {task_count}")
+    print("_" * print_width)
+
+    # starting from 1 for aesthetics, later on there is logic to handle correct index use
+    for task_number, task in enumerate(my_tasks, start=1):
+        is_complete = "Yes" if task.is_complete else "No"
+
+        print()
+        print(f"Task number:\t{task_number}")
+        print(
+            f"Task:\t\t{textwrap.fill(task.title, print_width, subsequent_indent='\t\t')}",
+        )
+        print(f"Assigned to:\t{task.assigned_to}")
+        print(f"Assigned by:\t{task.assigned_by}")
+        print(f"Date assigned:\t{task.assigned_date}")
+        print(f"Due date:\t{task.due_date}")
+        print(f"Task complete?\t{is_complete}")
+        print(
+            f"Task description:\n    {textwrap.fill(task.description, print_width, subsequent_indent='    ')}",
+        )
+        print("_" * print_width)
+
+    # Logic to edit tasks for current user
+    while True:
+        print("Enter task number to edit or enter -1 to return to main menu")
+        try:
+            input_index = int(input("\tEnter selection: "))
+            if input_index == -1:
+                return
+            if input_index < -1 or input_index > len(my_tasks) or input_index == 0:
+                print("You have entered an invalid input. Please try again...")
+                continue
+            # This is -1 because the index numbers for the tasks start from 1 for aesthetics
+            if my_tasks[input_index - 1].is_complete:
+                print("This task is complete and cannot be edited\n")
+                continue
+            break
+        except ValueError:
+            print("You have entered an invalid input. Please try again...")
+            continue
+
+    # This is correcting the index so editing the Task objects in the list works correctly
+    corrected_index = input_index - 1
+
+    print(
+        f"Task number {input_index} to be edited. Select one of the following options:\n"
+        "\tu - change user this task is assigned to\n"
+        "\td - change due date\n"
+        "\tc - mark task as complete\n",
+    )
+
+    while True:
+        edit_menu = input("Enter selection: ")
+        if edit_menu == "u":
+            existing_users = display_users()
+            while True:
+                input_username = input("\tAssign to: ")
+                if input_username in existing_users:
+                    break
+                print("User doesn't exist, try again...")
+            my_tasks[corrected_index].assigned_to = input_username
+            print(f"Task assigned to new user {my_tasks[corrected_index].assigned_to}")
+            break
+
+        if edit_menu == "d":
+            while True:
+                input_due_date = input("\tDue Date (e.g. 24-04-2025): ")
+                # Using a try/except statement along with the datetime library to
+                # make sure the date entered by the user is in the correct format.
+                # This could help later on when generating reports
+                try:
+                    datetime.strptime(input_due_date, "%d-%m-%Y").replace(
+                        tzinfo=timezone.utc,
+                    )
+                    break
+
+                except ValueError:
+                    print("Date format incorrect, try again...")
+            my_tasks[corrected_index].due_date = input_due_date
+            print(f"Due date changed to {my_tasks[corrected_index].due_date}")
+            break
+
+        if edit_menu == "c":
+            my_tasks[corrected_index].complete_task()
+            print(f"Task: {my_tasks[corrected_index].title} marked as completed")
+            break
+
+        print("You have entered an invalid input. Please try again...")
+
+    # Write all tasks to the tasks file again
+    with Path.open(TASKS_FILE_PATH, "w") as tasks_file:
+        for task in all_tasks:
+            tasks_file.write(task.to_csv_string())
+
+    print("Updated task saved to file...")
+
+
 # ==== Main program loop Section ====
 def main():
-    view_all_tasks()
+    view_mine(Admin("user2", "admin"))
     sys.exit()
     # Assigns the relevant User|Admin object to current_user
     # Also this way the menu inputs from the user is validated by the User|Admin object
@@ -358,7 +509,7 @@ def main():
     while True:
         menu = input(current_user.get_menu())
         if not current_user.is_valid_command(menu):
-            print("This is an invalid command, try again...")
+            print("You have entered an invalid input. Please try again...")
             continue
         break
 
@@ -433,7 +584,7 @@ def main():
             sys.exit()
 
         else:
-            print("You have entered an invalid input. Please try again")
+            print("You have entered an invalid input. Please try again...")
 
 
 if __name__ == "__main__":
