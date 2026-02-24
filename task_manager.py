@@ -1,17 +1,14 @@
 # ===== Importing external modules ===========
 import sys
 from datetime import datetime
+from pathlib import Path
 
-# ==== Login Section ====
-# TODO: Implement the following functionality
-"""Here you will write code that will allow a user to login.
-    - Your code must read usernames and passwords from the user.txt file
-    - You can use a list or dictionary to store a list of usernames and
-       passwords from the file.
-    - Use a while loop to validate your user name and password.
-"""
+# ==== Constants Section ====
+USERS_FILE_PATH = Path(Path(__file__).parent / "users.txt")
+TASKS_FILE_PATH = Path(Path(__file__).parent / "tasks.txt")
 
 
+# ==== Class Section ====
 class User:
     def __init__(self, username: str, password: str):
         self.username = username
@@ -81,6 +78,12 @@ class TaskManager:
     pass
 
 
+# ==== Login Section ====
+def login():
+    pass
+
+
+# ==== Main program loop Section ====
 def main():
     current_user = Admin("testUser", "Password123")
     while True:
