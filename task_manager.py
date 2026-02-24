@@ -190,7 +190,13 @@ def login() -> User | Admin:
                 sys.exit()
 
 
-def display_users():
+def display_users() -> list:
+    """
+    Prints out a comma separated row of all available users then returns a list of all users.
+
+    :return: A list of all available users
+    :rtype: list
+    """
     users = []
     with Path.open(USER_FILE_PATH) as user_file:
         for line in user_file:
@@ -207,9 +213,19 @@ def display_users():
 
 
 def add_task(current_user: User | Admin):
+    """
+    Take inputs from a user to add a task.
+
+    Checks against available users to validate that the user exists.
+    Validates the due date inputted.
+
+    :param current_user: The current user object of the user that is logged in
+    :type current_user: User | Admin
+    """
     print("Enter task details...")
     assigned_by = current_user.username
 
+    # Logic to make sure the entered user exists
     available_users = display_users()
     while True:
         input_assigned_to = input("\tAssign to: ")
@@ -224,6 +240,9 @@ def add_task(current_user: User | Admin):
 
         while True:
             input_due_date = input("\tDue Date (e.g. 24-04-2025): ")
+            # Using a try/except statement along with the datetime library to
+            # make sure the date entered by the user is in the correct format.
+            # This could help later on when generating reports
             try:
                 datetime.strptime(input_due_date, "%d-%m-%Y").replace(
                     tzinfo=timezone.utc,
