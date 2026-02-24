@@ -520,72 +520,35 @@ def main():
         break
 
     while True:
-        if menu == "r":
-            # TODO: Implement the following functionality
-            """This code block will add a new user to the user.txt file
-            - You can use the following steps:
-                - Request input of a new username
-                - Request input of a new password
-                - Request input of password confirmation.
-                - Check if the new password and confirmed password are the same
-                - If they are the same, add them to the user.txt file,
-                otherwise present a relevant message"""
+        if menu == "r":  # Register user (Admin only)
+            register_user()
 
-        elif menu == "a":
-            # TODO: Implement the following functionality
-            """This code block will allow a user to add a new task to task.txt file
-            - You can use these steps:
-                - Prompt a user for the following:
-                    - the username of the person whom the task is assigned to,
-                    - the title of the task,
-                    - the description of the task, and
-                    - the due date of the task.
-                - Then, get the current date.
-                - Add the data to the file task.txt
-                - Remember to include 'No' to indicate that the task is not
-                complete.
-            """
+        elif menu == "a":  # Add task
+            add_task(current_user)
 
-        elif menu == "va":
-            # TODO: Implement the following functionality
-            """This code block will read the task from task.txt file and
-            print to the console in the format of Output 2 presented in the PDF
-            You can do it in this way:
-                - Read a line from the file.
-                - Split that line where there is comma and space.
-                - Then print the results in the format shown in the Output 2 in
-                the PDF
-                - It is much easier to read a file using a for loop."""
+        elif menu == "va":  # View all tasks
+            view_all_tasks()
 
-        elif menu == "vm":
-            # TODO: Implement the following functionality
-            """This code block will read the task from task.txt file and
-            print to the console in the format of Output 2 presented in the PDF
-            You can do it in this way:
-                - Read a line from the file
-                - Split the line where there is comma and space.
-                - Check if the username of the person logged in is the same as the 
-                username you have read from the file.
-                - If they are the same you print the task in the format of Output 2
-                shown in the PDF """
+        elif menu == "vm":  # View my tasks
+            view_mine(current_user, task_manager)
 
-        elif menu == "vc":
-            # TODO: Implement functionality
+        elif menu == "vc":  # View completed tasks (Admin only)
+            # TODO: Implement View completed tasks functionality
             pass
 
-        elif menu == "del":
-            # TODO: Implement functionality
+        elif menu == "del":  # Delete a task (Admin only)
+            # TODO: Implement Delete a task functionality
             pass
 
-        elif menu == "ds":
-            # TODO: Implement functionality
+        elif menu == "ds":  # Display statistics (Admin only)
+            # TODO: Implement Display statistics functionality
             pass
 
-        elif menu == "gr":
-            # TODO: Implement functionality
+        elif menu == "gr":  # Generate reports (Admin only)
+            # TODO: Implement Generate reports functionality
             pass
 
-        elif menu == "e":
+        elif menu == "e":  # Exit
             print("Goodbye!!!")
             sys.exit()
 
