@@ -1,0 +1,117 @@
+# ===== Importing external modules ===========
+import sys
+from datetime import datetime
+
+# ==== Login Section ====
+# TODO: Implement the following functionality
+"""Here you will write code that will allow a user to login.
+    - Your code must read usernames and passwords from the user.txt file
+    - You can use a list or dictionary to store a list of usernames and
+       passwords from the file.
+    - Use a while loop to validate your user name and password.
+"""
+
+
+class User:
+    pass
+
+
+class Task:
+    def __init__(
+        self,
+        username: str,
+        title: str,
+        description: str,
+        assigned_date: str,
+        due_date: str,
+    ):
+        self.username = username
+        self.title = title
+        self.description = description
+        self.assigned_date = assigned_date
+        self.due_date = due_date
+        self.is_completed = False
+
+    def to_csv_string(self):
+        task_status = "Yes" if self.is_completed else "No"
+        return f"{self.username}, {self.title}, {self.description}, {self.assigned_date}, {self.due_date}, {task_status}"
+
+    def complete_task(self):
+        self.is_completed = True
+
+
+class TaskManager:
+    pass
+
+
+def main():
+    while True:
+        menu = input(
+            "Select one of the following options:\n"
+            "\tr - register a user\n"
+            "\ta - add task\n"
+            "\tva - view all tasks\n"
+            "\tvm - view my tasks\n"
+            "\te - exit\n"
+            "Enter selection: ",
+        ).lower()
+
+        if menu == "r":
+            # TODO: Implement the following functionality
+            """This code block will add a new user to the user.txt file
+            - You can use the following steps:
+                - Request input of a new username
+                - Request input of a new password
+                - Request input of password confirmation.
+                - Check if the new password and confirmed password are the same
+                - If they are the same, add them to the user.txt file,
+                otherwise present a relevant message"""
+
+        elif menu == "a":
+            # TODO: Implement the following functionality
+            """This code block will allow a user to add a new task to task.txt file
+            - You can use these steps:
+                - Prompt a user for the following:
+                    - the username of the person whom the task is assigned to,
+                    - the title of the task,
+                    - the description of the task, and
+                    - the due date of the task.
+                - Then, get the current date.
+                - Add the data to the file task.txt
+                - Remember to include 'No' to indicate that the task is not
+                complete.
+            """
+
+        elif menu == "va":
+            # TODO: Implement the following functionality
+            """This code block will read the task from task.txt file and
+            print to the console in the format of Output 2 presented in the PDF
+            You can do it in this way:
+                - Read a line from the file.
+                - Split that line where there is comma and space.
+                - Then print the results in the format shown in the Output 2 in
+                the PDF
+                - It is much easier to read a file using a for loop."""
+
+        elif menu == "vm":
+            # TODO: Implement the following functionality
+            """This code block will read the task from task.txt file and
+            print to the console in the format of Output 2 presented in the PDF
+            You can do it in this way:
+                - Read a line from the file
+                - Split the line where there is comma and space.
+                - Check if the username of the person logged in is the same as the 
+                username you have read from the file.
+                - If they are the same you print the task in the format of Output 2
+                shown in the PDF """
+
+        elif menu == "e":
+            print("Goodbye!!!")
+            sys.exit()
+
+        else:
+            print("You have entered an invalid input. Please try again")
+
+
+if __name__ == "__main__":
+    main()
