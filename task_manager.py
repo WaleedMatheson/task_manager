@@ -11,13 +11,29 @@ EXPECTED_USER_FIELDS = 3
 
 
 # ==== Class Section ====
+# I decided to use Classes to manage most of this program because it will be easier to
+# keep track of if the user is regular or an admin, and to know what they can do
 class User:
     def __init__(self, username: str, password: str):
+        """
+        Initialise the User object.
+
+        :param username: Users username
+        :type username: str
+        :param password: Users password
+        :type password: str
+        """
         self.username = username
         self.password = password
         self.valid_commands = ["a", "va", "vm", "e"]
 
-    def get_menu(self):
+    def get_menu(self) -> str:
+        """
+        Get the menu string for the user that's logged in.
+
+        :return: A string with a list of menu items
+        :rtype: str
+        """
         return (
             "\nSelect one of the following options:\n"
             "\ta - add task\n"
@@ -27,16 +43,38 @@ class User:
             "Enter selection: "
         )
 
-    def is_valid_command(self, user_input):
+    def is_valid_command(self, user_input: str) -> bool:
+        """
+        Checks the input from a user against a list of valid commands.
+
+        :param user_input: Command input from the user
+        :type user_input: str
+        :return: A bool if command entered is valid
+        :rtype: bool
+        """
         return user_input in self.valid_commands
 
 
 class Admin(User):
     def __init__(self, username: str, password: str):
+        """
+        Initialise the Admin object.
+
+        :param username: Admins username
+        :type username: str
+        :param password: Admins password
+        :type password: str
+        """
         super().__init__(username, password)
         self.valid_commands = ["r", "a", "va", "vm", "e", "vc", "del", "ds", "gr"]
 
-    def get_menu(self):
+    def get_menu(self) -> str:
+        """
+        Get the menu string for the admin that's logged in.
+
+        :return: A string with a list of menu items
+        :rtype: str
+        """
         return (
             "\nSelect one of the following options:\n"
             "\tr - register a user\n"
@@ -61,6 +99,20 @@ class Task:
         assigned_date: str,
         due_date: str,
     ):
+        """
+        Initialise the Task object.
+
+        :param username: The username the task is assigned to
+        :type username: str
+        :param title: Task title
+        :type title: str
+        :param description: Task description
+        :type description: str
+        :param assigned_date: Date task was assigned
+        :type assigned_date: str
+        :param due_date: Date task is due
+        :type due_date: str
+        """
         self.username = username
         self.title = title
         self.description = description
@@ -68,11 +120,20 @@ class Task:
         self.due_date = due_date
         self.is_completed = False
 
-    def to_csv_string(self):
+    def to_csv_string(self) -> str:
+        """
+        Convert and return the assigned value in the object to a CSV string format.
+
+        Also changes the bool value of `is_completed` to "Yes" or "No".
+
+        :return: A string of all the assigned values in the object
+        :rtype: str
+        """
         task_status = "Yes" if self.is_completed else "No"
         return f"{self.username}, {self.title}, {self.description}, {self.assigned_date}, {self.due_date}, {task_status}"
 
     def complete_task(self):
+        """Set `is_completed` to True."""
         self.is_completed = True
 
 
@@ -81,9 +142,20 @@ class TaskManager:
 
 
 # ==== Login Section ====
-def login():
+def login() -> User | Admin:
+    """
+    Prompt the user for their username and password.
+
+    Password is obfuscated using the `getpass` library.
+    Check the username and password against the `user.txt` file and if incorrect allow the user to try again.
+    If the username and password are valid, then check if it's a User or Admin.
+
+    :return: The User or Admin object for the username and password entered
+    :rtype: User | Admin
+    """
     while True:
         input_username = input("Username: ")
+        # Using getpass library to obfuscate the password when it's entered in the CLI
         input_password = getpass("Password: ")
 
         with Path.open(USERS_FILE_PATH) as users_file:
@@ -104,6 +176,8 @@ def login():
                             return Admin(input_username, input_password)
                         return User(input_username, input_password)
 
+            # Printing that username or password is incorrect to not let unauthorised persons know
+            # if they got a username correct.
             print("\nThe username or password you've entered is incorrect")
             retry = input("would you like to try again? (y/n): ")
 
@@ -114,6 +188,8 @@ def login():
 
 # ==== Main program loop Section ====
 def main():
+    # Assigns the relevant User|Admin object to current_user
+    # Also this way the menu inputs from the user is validated by the User|Admin object
     current_user = login()
     while True:
         menu = input(current_user.get_menu())
