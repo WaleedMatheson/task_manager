@@ -1,9 +1,9 @@
 # ===== Importing external modules ===========
-import sys
-import textwrap
-from datetime import datetime, timezone
-from getpass import getpass
-from pathlib import Path
+import sys  # For a safer exit() method
+import textwrap  # For styling when printing to the terminal
+from datetime import datetime, timezone  # For date validation and formatting
+from getpass import getpass  # To obfuscate the password input in the terminal
+from pathlib import Path  # The recommended approach to filepath management
 
 # ==== Constants Section ====
 USER_FILE_PATH = Path(Path(__file__).parent / "user.txt")
