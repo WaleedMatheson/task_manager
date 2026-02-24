@@ -5,7 +5,7 @@ from getpass import getpass
 from pathlib import Path
 
 # ==== Constants Section ====
-USERS_FILE_PATH = Path(Path(__file__).parent / "user.txt")
+USER_FILE_PATH = Path(Path(__file__).parent / "user.txt")
 TASKS_FILE_PATH = Path(Path(__file__).parent / "tasks.txt")
 EXPECTED_USER_FIELDS = 3
 
@@ -93,7 +93,8 @@ class Admin(User):
 class Task:
     def __init__(
         self,
-        username: str,
+        assigned_by: str,
+        assigned_to: str,
         title: str,
         description: str,
         assigned_date: str,
@@ -102,8 +103,10 @@ class Task:
         """
         Initialise the Task object.
 
-        :param username: The username the task is assigned to
-        :type username: str
+        :param assigned_by: The username the task is assigned by
+        :type assigned_by: str
+        :param assigned_to: The username the task is assigned to
+        :type assigned_to: str
         :param title: Task title
         :type title: str
         :param description: Task description
@@ -113,7 +116,8 @@ class Task:
         :param due_date: Date task is due
         :type due_date: str
         """
-        self.username = username
+        self.assigned_by = assigned_by
+        self.assigned_to = assigned_to
         self.title = title
         self.description = description
         self.assigned_date = assigned_date
@@ -130,7 +134,7 @@ class Task:
         :rtype: str
         """
         task_status = "Yes" if self.is_completed else "No"
-        return f"{self.username}, {self.title}, {self.description}, {self.assigned_date}, {self.due_date}, {task_status}"
+        return f"{self.assigned_by}, {self.assigned_to}, {self.title}, {self.description}, {self.assigned_date}, {self.due_date}, {task_status}"
 
     def complete_task(self):
         """Set `is_completed` to True."""
@@ -141,7 +145,7 @@ class TaskManager:
     pass
 
 
-# ==== Login Section ====
+# ==== Functions ====
 def login() -> User | Admin:
     """
     Prompt the user for their username and password.
@@ -158,8 +162,8 @@ def login() -> User | Admin:
         # Using getpass library to obfuscate the password when it's entered in the CLI
         input_password = getpass("Password: ")
 
-        with Path.open(USERS_FILE_PATH) as users_file:
-            for line in users_file:
+        with Path.open(USER_FILE_PATH) as user_file:
+            for line in user_file:
                 parts = line.strip().split(", ")
 
                 if len(parts) == EXPECTED_USER_FIELDS:
@@ -184,6 +188,66 @@ def login() -> User | Admin:
             if retry != "y":
                 print("Exiting program...")
                 sys.exit()
+
+
+def display_users():
+    users = []
+    with Path.open(USER_FILE_PATH) as user_file:
+        for line in user_file:
+            parts = line.strip().split(", ")
+
+            if len(parts) == EXPECTED_USER_FIELDS:
+                file_username = parts[0]
+                users.append(file_username)
+
+    users.sort()
+    print("Available list of users:")
+    print(f"{', '.join(users)}")
+    return users
+
+
+def add_task(current_user: User | Admin):
+    print("Enter task details...")
+    assigned_by = current_user.username
+
+    available_users = display_users()
+    while True:
+        input_assigned_to = input("\tAssign to: ")
+        if input_assigned_to not in available_users:
+            print("\nUser does not exist, try again...\n")
+            continue
+        break
+
+    while True:
+        input_title = input("\tTitle: ")
+        input_description = input("\tDescription: ")
+        input_due_date = input("\tDue Date (e.g. 24-04-2025): ")
+        assigned_date = datetime.now().strftime("%d-%m-%Y")
+
+        print("Details entered...")
+        print(f"\tTitle: {input_title}")
+        print(f"\tDescription: {input_description}")
+        print(f"\tDate Due: {input_due_date}")
+
+        retry = input("\nAre these details correct? (y/n): ")
+
+        if retry == "y":
+            break
+        print("Please enter task details again...")
+
+    task = Task(
+        assigned_by,
+        input_assigned_to,
+        input_title,
+        input_description,
+        assigned_date,
+        input_due_date,
+    )
+
+    with Path.open(TASKS_FILE_PATH, "a") as tasks_file:
+        tasks_file.write(task.to_csv_string() + "\n")
+
+    print("Task added to file...")
 
 
 # ==== Main program loop Section ====
