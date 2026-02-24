@@ -512,14 +512,14 @@ def main():
     # Assigns the relevant User|Admin object to current_user
     # Also this way the menu inputs from the user is validated by the User|Admin object
     current_user = login()
-    while True:
-        menu = input(current_user.get_menu())
-        if not current_user.is_valid_command(menu):
-            print("You have entered an invalid input. Please try again...")
-            continue
-        break
 
     while True:
+        while True:
+            menu = input(current_user.get_menu())
+            if not current_user.is_valid_command(menu):
+                print("You have entered an invalid input. Please try again...")
+                continue
+            break
         if menu == "r":  # Register user (Admin only)
             register_user()
 
