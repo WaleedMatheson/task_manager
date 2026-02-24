@@ -1,11 +1,13 @@
 # ===== Importing external modules ===========
 import sys
 from datetime import datetime
+from getpass import getpass
 from pathlib import Path
 
 # ==== Constants Section ====
-USERS_FILE_PATH = Path(Path(__file__).parent / "users.txt")
+USERS_FILE_PATH = Path(Path(__file__).parent / "user.txt")
 TASKS_FILE_PATH = Path(Path(__file__).parent / "tasks.txt")
+EXPECTED_USER_FIELDS = 3
 
 
 # ==== Class Section ====
@@ -80,12 +82,39 @@ class TaskManager:
 
 # ==== Login Section ====
 def login():
-    pass
+    while True:
+        input_username = input("Username: ")
+        input_password = getpass("Password: ")
+
+        with Path.open(USERS_FILE_PATH) as users_file:
+            for line in users_file:
+                parts = line.strip().split(", ")
+
+                if len(parts) == EXPECTED_USER_FIELDS:
+                    file_username = parts[0]
+                    file_password = parts[1]
+                    file_is_admin = parts[2]
+
+                    if (
+                        input_username == file_username
+                        and input_password == file_password
+                    ):
+                        print("\nYou've successfully logged in!")
+                        if file_is_admin == "Yes":
+                            return Admin(input_username, input_password)
+                        return User(input_username, input_password)
+
+            print("\nThe username or password you've entered is incorrect")
+            retry = input("would you like to try again? (y/n): ")
+
+            if retry != "y":
+                print("Exiting program...")
+                sys.exit()
 
 
 # ==== Main program loop Section ====
 def main():
-    current_user = Admin("testUser", "Password123")
+    current_user = login()
     while True:
         menu = input(current_user.get_menu())
         if not current_user.is_valid_command(menu):
