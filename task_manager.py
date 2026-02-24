@@ -13,7 +13,13 @@ from datetime import datetime
 
 
 class User:
-    pass
+    def __init__(self, username: str, password: str):
+        self.username = username
+        self.password = password
+        self.valid_commands = ["r", "a", "va", "vm", "e"]
+
+    def is_valid_command(self, user_input):
+        return user_input in self.valid_commands
 
 
 class Task:
