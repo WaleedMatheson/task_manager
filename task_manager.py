@@ -198,7 +198,7 @@ class TaskManager:
         """Save current tasks to file."""
         with Path.open(self.file_path, "w") as file:
             for task in self.tasks:
-                file.write(task.to_csv_string())
+                file.write(task.to_csv_string() + "\n")
 
 
 # ==== Functions ====
@@ -267,7 +267,7 @@ def display_users() -> list:
     return users
 
 
-def add_task(current_user: User | Admin):
+def add_task(current_user: User | Admin, task_manager: TaskManager):
     """
     Take inputs from a user to add a task.
 
@@ -329,8 +329,10 @@ def add_task(current_user: User | Admin):
         input_due_date,
     )
 
-    with Path.open(TASKS_FILE_PATH, "a") as tasks_file:
-        tasks_file.write(task.to_csv_string() + "\n")
+    # Add the task to the TaskManager object in memory and save all tasks to file to keep it
+    # in line with what is in memory
+    task_manager.tasks.append(task)
+    task_manager.save_tasks()
 
     print("Task added to file...")
 
