@@ -402,61 +402,17 @@ def view_all_tasks():
             print("_" * print_width)
 
 
-def view_mine(current_user: User | Admin):
+def view_mine(current_user: User | Admin, task_manager: TaskManager):
     """Print only the current users tasks to the command line in a neat formatted manner."""
     print_width = 70
-    task_count = 0
 
-    # Making two lists because one will handle the edits to the current users tasks
-    # and the other will handle writing all updated tasks to the tasks file
-    all_tasks: list[Task] = []
-    my_tasks: list[Task] = []
+    my_tasks: list[Task] = task_manager.get_user_tasks(current_user.username)
 
-    with Path.open(TASKS_FILE_PATH) as tasks_file:
-        parts = []
-        for line in tasks_file:
-            parts = line.strip().split(", ")
-
-            if len(parts) != EXPECTED_TASKS_FIELDS:
-                continue
-
-            (
-                assigned_by,
-                assigned_to,
-                title,
-                description,
-                date_assigned,
-                due_date,
-                is_complete,
-            ) = parts
-
-            new_task = Task(
-                assigned_by,
-                assigned_to,
-                title,
-                description,
-                date_assigned,
-                due_date,
-            )
-
-            if is_complete == "Yes":
-                new_task.complete_task()
-
-            all_tasks.append(new_task)
-
-            # skipping tasks that are not assigned to current user
-            if assigned_to != current_user.username:
-                continue
-
-            my_tasks.append(new_task)
-
-            task_count += 1
-
-    if task_count == 0:
+    if len(my_tasks) == 0:
         print("You have no tasks assigned to you...")
         return
 
-    print(f"Number of tasks assigned to you: {task_count}")
+    print(f"Number of tasks assigned to you: {len(my_tasks)}")
     print("_" * print_width)
 
     # starting from 1 for aesthetics, later on there is logic to handle correct index use
@@ -545,10 +501,7 @@ def view_mine(current_user: User | Admin):
 
         print("You have entered an invalid input. Please try again...")
 
-    # Write all tasks to the tasks file again
-    with Path.open(TASKS_FILE_PATH, "w") as tasks_file:
-        for task in all_tasks:
-            tasks_file.write(task.to_csv_string())
+    task_manager.save_tasks()
 
     print("Updated task saved to file...")
 
