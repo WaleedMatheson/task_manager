@@ -20,7 +20,7 @@ class User:
 
     def get_menu(self):
         return (
-            "Select one of the following options:\n"
+            "\nSelect one of the following options:\n"
             "\ta - add task\n"
             "\tva - view all tasks\n"
             "\tvm - view my tasks\n"
@@ -39,7 +39,7 @@ class Admin(User):
 
     def get_menu(self):
         return (
-            "Select one of the following options:\n"
+            "\nSelect one of the following options:\n"
             "\tr - register a user\n"
             "\ta - add task\n"
             "\tva - view all tasks\n"
@@ -82,17 +82,15 @@ class TaskManager:
 
 
 def main():
+    current_user = Admin("testUser", "Password123")
     while True:
-        menu = input(
-            "Select one of the following options:\n"
-            "\tr - register a user\n"
-            "\ta - add task\n"
-            "\tva - view all tasks\n"
-            "\tvm - view my tasks\n"
-            "\te - exit\n"
-            "Enter selection: ",
-        ).lower()
+        menu = input(current_user.get_menu())
+        if not current_user.is_valid_command(menu):
+            print("This is an invalid command, try again...")
+            continue
+        break
 
+    while True:
         if menu == "r":
             # TODO: Implement the following functionality
             """This code block will add a new user to the user.txt file
@@ -141,6 +139,22 @@ def main():
                 username you have read from the file.
                 - If they are the same you print the task in the format of Output 2
                 shown in the PDF """
+
+        elif menu == "vc":
+            # TODO: Implement functionality
+            pass
+
+        elif menu == "del":
+            # TODO: Implement functionality
+            pass
+
+        elif menu == "ds":
+            # TODO: Implement functionality
+            pass
+
+        elif menu == "gr":
+            # TODO: Implement functionality
+            pass
 
         elif menu == "e":
             print("Goodbye!!!")
