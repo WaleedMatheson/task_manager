@@ -91,7 +91,7 @@ class Admin(User):
 
 
 class Task:
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         assigned_by: str,
         assigned_to: str,
@@ -192,9 +192,9 @@ def login() -> User | Admin:
 
 def display_users() -> list:
     """
-    Prints out a comma separated row of all available users then returns a list of all users.
+    Prints out a comma separated row of all existing users then returns a list of all users.
 
-    :return: A list of all available users
+    :return: A list of all existing users
     :rtype: list
     """
     users = []
@@ -207,8 +207,7 @@ def display_users() -> list:
                 users.append(file_username)
 
     users.sort()
-    print("Available list of users:")
-    print(f"{', '.join(users)}")
+    print(f"Existing list of users: {', '.join(users)}")
     return users
 
 
@@ -216,7 +215,7 @@ def add_task(current_user: User | Admin):
     """
     Take inputs from a user to add a task.
 
-    Checks against available users to validate that the user exists.
+    Checks against existing users to validate that the user exists.
     Validates the due date inputted.
 
     :param current_user: The current user object of the user that is logged in
@@ -226,10 +225,10 @@ def add_task(current_user: User | Admin):
     assigned_by = current_user.username
 
     # Logic to make sure the entered user exists
-    available_users = display_users()
+    existing_users = display_users()
     while True:
         input_assigned_to = input("\tAssign to: ")
-        if input_assigned_to not in available_users:
+        if input_assigned_to not in existing_users:
             print("\nUser does not exist, try again...\n")
             continue
         break
@@ -278,6 +277,34 @@ def add_task(current_user: User | Admin):
         tasks_file.write(task.to_csv_string() + "\n")
 
     print("Task added to file...")
+
+
+def register_user():
+    """Register a new user by taking inputs from an admin."""
+    print("Enter new user details:")
+
+    # Get existing users to make sure the new username isn't already in the user file
+    existing_users = display_users()
+    while True:
+        input_username = input("\tUsername: ")
+        if input_username not in existing_users:
+            break
+        print("User already exists, try username again...")
+
+    while True:
+        input_password = getpass("Password: ")
+        repeat_password = getpass("Repeat password: ")
+        if input_password == repeat_password:
+            break
+        print("Passwords don't match, try password again...")
+
+    input_is_admin = input("Give this user admin privileges? (y/n) ").lower()
+    is_admin = "Yes" if input_is_admin == "y" else "No"
+
+    with Path.open(USER_FILE_PATH, "a") as user_file:
+        user_file.write(f"{input_username}, {input_password}, {is_admin}\n")
+
+    print("New user registered...")
 
 
 # ==== Main program loop Section ====
