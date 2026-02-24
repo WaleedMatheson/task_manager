@@ -145,6 +145,12 @@ class Task:
 
 class TaskManager:
     def __init__(self, file_path: Path):
+        """
+        Initialise TaskManager object.
+
+        :param file_path: File path to the tasks file
+        :type file_path: Path
+        """
         self.file_path = file_path
         self.tasks: list[Task] = []
         self.load_tasks()
@@ -202,7 +208,7 @@ class TaskManager:
 
 
 # ==== Functions ====
-def login() -> User | Admin:
+def login() -> User:
     """
     Prompt the user for their username and password.
 
@@ -267,7 +273,7 @@ def display_users() -> list:
     return users
 
 
-def add_task(current_user: User | Admin, task_manager: TaskManager):
+def add_task(current_user: User, task_manager: TaskManager):
     """
     Take inputs from a user to add a task.
 
@@ -275,7 +281,9 @@ def add_task(current_user: User | Admin, task_manager: TaskManager):
     Validates the due date inputted.
 
     :param current_user: The current user object of the user that is logged in
-    :type current_user: User | Admin
+    :type current_user: User
+    :param task_manager: The TaskManager object that manages current tasks
+    :type task_manager: TaskManager
     """
     print("Enter task details...")
     assigned_by = current_user.username
@@ -369,7 +377,7 @@ def view_all_tasks(task_manager: TaskManager):
     """
     Print all tasks to the command line in a neat formatted manner.
 
-    :param task_manager: TaskManager object
+    :param task_manager: The TaskManager object that manages current tasks
     :type task_manager: TaskManager
     """
     # This is used for styling the width of the printout
@@ -397,7 +405,14 @@ def view_all_tasks(task_manager: TaskManager):
 
 
 def view_mine(current_user: User | Admin, task_manager: TaskManager):
-    """Print only the current users tasks to the command line in a neat formatted manner."""
+    """
+    Print only the current users tasks to the command line in a neat formatted manner.
+
+    :param current_user: The current user object of the user that is logged in
+    :type current_user: User
+    :param task_manager: The TaskManager object that manages current tasks
+    :type task_manager: TaskManager
+    """
     print_width = 70
 
     my_tasks: list[Task] = task_manager.get_user_tasks(current_user.username)
