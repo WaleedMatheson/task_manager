@@ -1,5 +1,6 @@
 # ===== Importing external modules ===========
 import sys
+import textwrap
 from datetime import datetime, timezone
 from getpass import getpass
 from pathlib import Path
@@ -8,6 +9,7 @@ from pathlib import Path
 USER_FILE_PATH = Path(Path(__file__).parent / "user.txt")
 TASKS_FILE_PATH = Path(Path(__file__).parent / "tasks.txt")
 EXPECTED_USER_FIELDS = 3
+EXPECTED_TASKS_FIELDS = 7
 
 
 # ==== Class Section ====
@@ -307,8 +309,49 @@ def register_user():
     print("New user registered...")
 
 
+def view_all_tasks():
+    """Print all tasks to the command line in a neat formatted manner."""
+    # This is used for styling the width of hte printout
+    print_width = 70
+    print("_" * print_width)
+
+    with Path.open(TASKS_FILE_PATH) as tasks_file:
+        parts = []
+        for line in tasks_file:
+            parts = line.strip().split(", ")
+
+            if len(parts) != EXPECTED_TASKS_FIELDS:
+                continue
+
+            (
+                assigned_by,
+                assigned_to,
+                title,
+                description,
+                date_assigned,
+                due_date,
+                is_complete,
+            ) = parts
+
+            # Using the `textwrap` library to make the longer strings look neater
+            print(
+                f"Task:\t\t{textwrap.fill(title, print_width, subsequent_indent='\t\t')}",
+            )
+            print(f"Assigned to:\t{assigned_to}")
+            print(f"Assigned by:\t{assigned_by}")
+            print(f"Date assigned:\t{date_assigned}")
+            print(f"Due date:\t{due_date}")
+            print(f"Task complete?\t{is_complete}")
+            print(
+                f"Task description:\n    {textwrap.fill(description, print_width, subsequent_indent='    ')}",
+            )
+            print("_" * print_width)
+
+
 # ==== Main program loop Section ====
 def main():
+    view_all_tasks()
+    sys.exit()
     # Assigns the relevant User|Admin object to current_user
     # Also this way the menu inputs from the user is validated by the User|Admin object
     current_user = login()
