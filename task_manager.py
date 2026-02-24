@@ -99,7 +99,7 @@ class Task:
         assigned_to: str,
         title: str,
         description: str,
-        assigned_date: str,
+        date_assigned: str,
         due_date: str,
     ):
         """
@@ -122,7 +122,7 @@ class Task:
         self.assigned_to = assigned_to
         self.title = title
         self.description = description
-        self.assigned_date = assigned_date
+        self.assigned_date = date_assigned
         self.due_date = due_date
         self.is_complete = False
 
@@ -144,7 +144,61 @@ class Task:
 
 
 class TaskManager:
-    pass
+    def __init__(self, file_path: Path):
+        self.file_path = file_path
+        self.tasks: list[Task] = []
+        self.load_tasks()
+
+    def load_tasks(self):
+        """Load all tasks from the tasks source into a `tasks` list in this object."""
+        with Path.open(self.file_path) as file:
+            parts = []
+            for line in file:
+                parts = line.strip().split(", ")
+
+                if len(parts) != EXPECTED_TASKS_FIELDS:
+                    continue
+
+                (
+                    assigned_by,
+                    assigned_to,
+                    title,
+                    description,
+                    date_assigned,
+                    due_date,
+                    is_complete,
+                ) = parts
+
+                task = Task(
+                    assigned_by,
+                    assigned_to,
+                    title,
+                    description,
+                    date_assigned,
+                    due_date,
+                )
+
+                if is_complete == "Yes":
+                    task.complete_task()
+
+                self.tasks.append(task)
+
+    def get_user_tasks(self, username: str) -> list[Task]:
+        """
+        Return a list of Task objects for the currently logged in user.
+
+        :param username: Current user
+        :type username: str
+        :return: List of Task objects
+        :rtype: list[Task]
+        """
+        return [task for task in self.tasks if task.assigned_to == username]
+
+    def save_tasks(self):
+        """Save current tasks to file."""
+        with Path.open(self.file_path, "w") as file:
+            for task in self.tasks:
+                file.write(task.to_csv_string())
 
 
 # ==== Functions ====
@@ -501,8 +555,7 @@ def view_mine(current_user: User | Admin):
 
 # ==== Main program loop Section ====
 def main():
-    view_mine(Admin("user2", "admin"))
-    sys.exit()
+    task_manager = TaskManager(TASKS_FILE_PATH)
     # Assigns the relevant User|Admin object to current_user
     # Also this way the menu inputs from the user is validated by the User|Admin object
     current_user = login()
