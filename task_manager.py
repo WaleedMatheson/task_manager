@@ -16,7 +16,17 @@ class User:
     def __init__(self, username: str, password: str):
         self.username = username
         self.password = password
-        self.valid_commands = ["r", "a", "va", "vm", "e"]
+        self.valid_commands = ["a", "va", "vm", "e"]
+
+    def get_menu(self):
+        return (
+            "Select one of the following options:\n"
+            "\ta - add task\n"
+            "\tva - view all tasks\n"
+            "\tvm - view my tasks\n"
+            "\te - exit\n"
+            "Enter selection: "
+        )
 
     def is_valid_command(self, user_input):
         return user_input in self.valid_commands
@@ -26,6 +36,21 @@ class Admin(User):
     def __init__(self, username: str, password: str):
         super().__init__(username, password)
         self.valid_commands = ["r", "a", "va", "vm", "e", "vc", "del", "ds", "gr"]
+
+    def get_menu(self):
+        return (
+            "Select one of the following options:\n"
+            "\tr - register a user\n"
+            "\ta - add task\n"
+            "\tva - view all tasks\n"
+            "\tvm - view my tasks\n"
+            "\tvc - view completed tasks\n"
+            "\tdel - delete a task\n"
+            "\tds - display statistics\n"
+            "\tgr - generate reports\n"
+            "\te - exit\n"
+            "Enter selection: "
+        )
 
 
 class Task:
