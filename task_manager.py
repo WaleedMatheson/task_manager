@@ -1,6 +1,6 @@
 # ===== Importing external modules ===========
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from getpass import getpass
 from pathlib import Path
 
@@ -221,8 +221,19 @@ def add_task(current_user: User | Admin):
     while True:
         input_title = input("\tTitle: ")
         input_description = input("\tDescription: ")
-        input_due_date = input("\tDue Date (e.g. 24-04-2025): ")
-        assigned_date = datetime.now().strftime("%d-%m-%Y")
+
+        while True:
+            input_due_date = input("\tDue Date (e.g. 24-04-2025): ")
+            try:
+                datetime.strptime(input_due_date, "%d-%m-%Y").replace(
+                    tzinfo=timezone.utc,
+                )
+                break
+
+            except ValueError:
+                print("Date format incorrect, try again...")
+
+        assigned_date = datetime.now(tz=timezone.utc).strftime("%d-%m-%Y")
 
         print("Details entered...")
         print(f"\tTitle: {input_title}")
