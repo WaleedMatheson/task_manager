@@ -22,6 +22,12 @@ class User:
         return user_input in self.valid_commands
 
 
+class Admin(User):
+    def __init__(self, username: str, password: str):
+        super().__init__(username, password)
+        self.valid_commands = ["r", "a", "va", "vm", "e", "vc", "del", "ds", "gr"]
+
+
 class Task:
     def __init__(
         self,
