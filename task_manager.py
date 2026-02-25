@@ -56,6 +56,15 @@ class User:
         """
         return user_input in self.valid_commands
 
+    def to_csv_string(self) -> str:
+        """
+        Generates and returns a CSV ready string with all the values in the user object.
+
+        :return: A formatted string with all the assigned values in the object
+        :rtype: str
+        """
+        return f"{self.username}, {self.password}, No"
+
 
 class Admin(User):
     def __init__(self, username: str, password: str):
@@ -90,6 +99,55 @@ class Admin(User):
             "\te - exit\n"
             "Enter selection: "
         )
+
+    def to_csv_string(self):
+        """
+        Generates and returns a CSV ready string with all the values in the user object.
+
+        :return: A formatted string with all the assigned values in the object
+        :rtype: str
+        """
+        return f"{self.username}, {self.password}, Yes"
+
+
+class UserManager:
+    def __init__(self, file_path: Path):
+        """
+        Initialise UserManager object.
+
+        :param file_path: File path to the user file
+        :type file_path: Path
+        """
+        self.file_path = file_path
+        self.users: list[User] = []
+        self.load_users()
+
+    def load_users(self):
+        """Load all users from the user source into a `users` list within this object."""
+        with Path.open(self.file_path) as file:
+            parts = []
+            for line in file:
+                parts = line.strip().split(", ")
+
+                if len(parts) != EXPECTED_USER_FIELDS:
+                    continue
+
+                username, password, is_admin = parts
+
+                if is_admin == "Yes":
+                    self.users.append(Admin(username, password))
+                else:
+                    self.users.append(User(username, password))
+
+    def get_users(self):
+        """Return a sorted list of all existing users."""
+        return sorted([user.username for user in self.users])
+
+    def save_users(self):
+        """Save current users to file."""
+        with Path.open(self.file_path, "w") as file:
+            for user in self.users:
+                file.write(user.to_csv_string() + "\n")
 
 
 class Task:
@@ -128,7 +186,7 @@ class Task:
 
     def to_csv_string(self) -> str:
         """
-        Convert and return the assigned value in the object to a CSV string format.
+        Convert and return the assigned values in the object to a CSV string format.
 
         Also changes the bool value of `is_completed` to "Yes" or "No".
 
