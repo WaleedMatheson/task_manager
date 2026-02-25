@@ -266,48 +266,37 @@ class TaskManager:
 
 
 # ==== Functions ====
-def login() -> User:
+def login(user_manager: UserManager) -> User:
     """
     Prompt the user for their username and password.
 
     Password is obfuscated using the `getpass` library.
-    Check the username and password against the `user.txt` file and if incorrect allow the user to try again.
-    If the username and password are valid, then check if it's a User or Admin.
+    Check the username and password against the users list in the UserManager object
+    and if incorrect allow the user to try again.
 
+    :param user_manager: UserManager object that contains the users list
+    :type user_manager: UserManager
     :return: The User or Admin object for the username and password entered
-    :rtype: User | Admin
+    :rtype: User
     """
     while True:
         input_username = input("Username: ")
         # Using getpass library to obfuscate the password when it's entered in the CLI
         input_password = getpass("Password: ")
 
-        with Path.open(USER_FILE_PATH) as user_file:
-            for line in user_file:
-                parts = line.strip().split(", ")
-
-                if len(parts) == EXPECTED_USER_FIELDS:
-                    file_username = parts[0]
-                    file_password = parts[1]
-                    file_is_admin = parts[2]
-
-                    if (
-                        input_username == file_username
-                        and input_password == file_password
-                    ):
-                        print("\nYou've successfully logged in!")
-                        if file_is_admin == "Yes":
-                            return Admin(input_username, input_password)
-                        return User(input_username, input_password)
+        for user in user_manager.users:
+            if input_username == user.username and input_password == user.password:
+                print("\nYou've successfully logged in!")
+                return user
 
             # Printing that username or password is incorrect to not let unauthorised persons know
             # if they got a username correct.
-            print("\nThe username or password you've entered is incorrect")
-            retry = input("would you like to try again? (y/n): ")
+        print("\nThe username or password you've entered is incorrect")
+        retry = input("would you like to try again? (y/n): ")
 
-            if retry != "y":
-                print("Exiting program...")
-                sys.exit()
+        if retry != "y":
+            print("Exiting program...")
+            sys.exit()
 
 
 def display_users() -> list:
@@ -576,9 +565,10 @@ def view_mine(current_user: User | Admin, task_manager: TaskManager):
 # ==== Main program loop Section ====
 def main():
     task_manager = TaskManager(TASKS_FILE_PATH)
+    user_manager = UserManager(USER_FILE_PATH)
     # Assigns the relevant User|Admin object to current_user
     # Also this way the menu inputs from the user is validated by the User|Admin object
-    current_user = login()
+    current_user = login(user_manager)
 
     while True:
         while True:
