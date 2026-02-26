@@ -388,12 +388,18 @@ def add_task(current_user: User, task_manager: TaskManager, user_manager: UserMa
     print("Task added to file...")
 
 
-def register_user():
-    """Register a new user by taking inputs from an admin."""
+def register_user(user_manager: UserManager):
+    """
+    Register a new user by taking inputs from an admin.
+
+    :param user_manager: UserManager object that contains the users list
+    :type user_manager: UserManager
+    """
     print("Enter new user details:")
 
     # Get existing users to make sure the new username isn't already in the user file
-    existing_users = display_existing_users()
+    display_existing_users(user_manager)
+    existing_users = user_manager.get_users()
     while True:
         input_username = input("\tUsername: ")
         if input_username not in existing_users:
@@ -408,10 +414,13 @@ def register_user():
         print("Passwords don't match, try password again...")
 
     input_is_admin = input("Give this user admin privileges? (y/n) ").lower()
-    is_admin = "Yes" if input_is_admin == "y" else "No"
 
-    with Path.open(USER_FILE_PATH, "a") as user_file:
-        user_file.write(f"{input_username}, {input_password}, {is_admin}\n")
+    if input_is_admin == "y":
+        user_manager.users.append(Admin(input_username, input_password))
+    else:
+        user_manager.users.append(User(input_username, input_password))
+
+    user_manager.save_users()
 
     print("New user registered...")
 
@@ -574,10 +583,10 @@ def main():
                 continue
             break
         if menu == "r":  # Register user (Admin only)
-            register_user()
+            register_user(user_manager)
 
         elif menu == "a":  # Add task
-            add_task(current_user, task_manager)
+            add_task(current_user, task_manager, user_manager)
 
         elif menu == "va":  # View all tasks
             view_all_tasks(task_manager)
