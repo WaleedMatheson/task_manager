@@ -12,7 +12,7 @@ TASK_OVERVIEW_FILE_PATH = Path(Path(__file__).parent / "task_overview.txt")
 USER_OVERVIEW_FILE_PATH = Path(Path(__file__).parent / "user_overview.txt")
 EXPECTED_USER_FIELDS = 3
 EXPECTED_TASKS_FIELDS = 7
-TERMINAL_PRINT_WIDTH = 70
+TERMINAL_PRINT_WIDTH = 80
 DATETIME_FORMAT = "%d-%m-%Y"
 
 
@@ -778,6 +778,74 @@ def generate_report(task_manager: TaskManager, user_manager: UserManager):
     print("Tasks and Users report generated...")
 
 
+def display_statistics(task_manager: TaskManager, user_manager: UserManager):
+    """
+    Display statistics from files about tasks and users.
+
+    :param task_manager: The TaskManager object that manages current tasks
+    :type task_manager: TaskManager
+    :param user_manager: UserManager object that contains the users list
+    :type user_manager: UserManager
+    """
+    if not Path.exists(TASK_OVERVIEW_FILE_PATH) or not Path.exists(
+        USER_OVERVIEW_FILE_PATH,
+    ):
+        generate_report(task_manager, user_manager)
+
+    ### Tasks
+    print("Tasks Statistics...")
+    with Path.open(TASK_OVERVIEW_FILE_PATH) as file:
+        (
+            date_report_generated,
+            total_tasks,
+            total_completed_tasks,
+            total_incomplete_tasks,
+            total_overdue_tasks,
+            percentage_incomplete_tasks,
+            percentage_overdue_tasks,
+        ) = file.readline().strip().split(", ")
+
+    print(f"\tReport Date & Time: {date_report_generated}")
+    print(f"\tTotal Tasks:\t    {total_tasks}")
+    print(f"\tCompleted Tasks:    {total_completed_tasks}")
+    print(
+        f"\tIncomplete Tasks:   {total_incomplete_tasks} ({float(percentage_incomplete_tasks):.2f}%)",
+    )
+    print(
+        f"\tOverdue Tasks:\t    {total_overdue_tasks} ({float(percentage_overdue_tasks):.2f}%)",
+    )
+
+    ### Users
+    header = "| Username | Total | Total (%) | Completed (%) | Incomplete (%) | Overdue (%) |"
+    table_width = len(header)
+
+    print()
+    print()
+    print("User Statistics...")
+    with Path.open(USER_OVERVIEW_FILE_PATH) as file:
+        total_users, total_tasks = file.readline().strip().split(", ")
+        print(f"\tTotal Users: {total_users}")
+        print(f"\tTotal Tasks: {total_tasks}")
+        print()
+        print("Users Tasks:")
+        print("_" * table_width)
+        print(header)
+        print("-" * table_width)
+        for line in file:
+            (
+                username,
+                total_user_tasks,
+                percentage_user_total_tasks,
+                percentage_user_total_completed_tasks,
+                percentage_user_total_incomplete_tasks,
+                percentage_user_overdue_tasks,
+            ) = line.strip().split(", ")
+            print(
+                f"| {username:<8} | {int(total_user_tasks):<5} | {float(percentage_user_total_tasks):>9.2f} | {float(percentage_user_total_completed_tasks):>13.2f} | {float(percentage_user_total_incomplete_tasks):>14.2f} | {float(percentage_user_overdue_tasks):>11.2f} |",
+            )
+    print("-" * table_width)
+
+
 # ==== Main program loop Section ====
 def main():
     task_manager = TaskManager(TASKS_FILE_PATH)
@@ -812,8 +880,7 @@ def main():
             delete_task(task_manager)
 
         elif menu == "ds":  # Display statistics (Admin only)
-            # TODO: Implement Display statistics functionality
-            pass
+            display_statistics(task_manager, user_manager)
 
         elif menu == "gr":  # Generate reports (Admin only)
             generate_report(task_manager, user_manager)
