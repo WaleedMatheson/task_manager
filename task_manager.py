@@ -456,7 +456,7 @@ def view_all_tasks(task_manager: TaskManager):
         print("_" * print_width)
 
 
-def view_mine(current_user: User | Admin, task_manager: TaskManager):
+def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserManager):
     """
     Print only the current users tasks to the command line in a neat formatted manner.
 
@@ -527,7 +527,8 @@ def view_mine(current_user: User | Admin, task_manager: TaskManager):
     while True:
         edit_menu = input("Enter selection: ")
         if edit_menu == "u":
-            existing_users = display_existing_users()
+            display_existing_users(user_manager)
+            existing_users = user_manager.get_users()
             while True:
                 input_username = input("\tAssign to: ")
                 if input_username in existing_users:
@@ -592,7 +593,7 @@ def main():
             view_all_tasks(task_manager)
 
         elif menu == "vm":  # View my tasks
-            view_mine(current_user, task_manager)
+            view_mine(current_user, task_manager, user_manager)
 
         elif menu == "vc":  # View completed tasks (Admin only)
             # TODO: Implement View completed tasks functionality
