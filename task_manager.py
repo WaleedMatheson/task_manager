@@ -772,7 +772,7 @@ def generate_report(task_manager: TaskManager, user_manager: UserManager):
         file.write(f"{total_users}, {total_tasks}\n")
         for username, stats in user_report.items():
             file.write(
-                f"{username}, {stats['total_tasks']}, {stats['%_total_tasks']}, {stats['%_complete_tasks']}, {stats['%_incomplete_tasks']}, {stats['%_overdue_tasks']}",
+                f"{username}, {stats['total_tasks']}, {stats['%_total_tasks']}, {stats['%_complete_tasks']}, {stats['%_incomplete_tasks']}, {stats['%_overdue_tasks']}\n",
             )
 
     print("Tasks and Users report generated...")
