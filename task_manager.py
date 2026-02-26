@@ -8,9 +8,12 @@ from pathlib import Path  # The recommended approach to filepath management
 # ==== Constants Section ====
 USER_FILE_PATH = Path(Path(__file__).parent / "user.txt")
 TASKS_FILE_PATH = Path(Path(__file__).parent / "tasks.txt")
+TASK_OVERVIEW_FILE_PATH = Path(Path(__file__).parent / "task_overview.txt")
+USER_OVERVIEW_FILE_PATH = Path(Path(__file__).parent / "user_overview.txt")
 EXPECTED_USER_FIELDS = 3
 EXPECTED_TASKS_FIELDS = 7
 TERMINAL_PRINT_WIDTH = 70
+DATETIME_FORMAT = "%d-%m-%Y"
 
 
 # ==== Class Section ====
@@ -350,7 +353,7 @@ def add_task(current_user: User, task_manager: TaskManager, user_manager: UserMa
             # make sure the date entered by the user is in the correct format.
             # This could help later on when generating reports
             try:
-                datetime.strptime(input_due_date, "%d-%m-%Y").replace(
+                datetime.strptime(input_due_date, DATETIME_FORMAT).replace(
                     tzinfo=timezone.utc,
                 )
                 break
@@ -358,7 +361,7 @@ def add_task(current_user: User, task_manager: TaskManager, user_manager: UserMa
             except ValueError:
                 print("Date format incorrect, try again...")
 
-        assigned_date = datetime.now(tz=timezone.utc).strftime("%d-%m-%Y")
+        assigned_date = datetime.now(tz=timezone.utc).strftime(DATETIME_FORMAT)
 
         print("Details entered...")
         print(f"\tTitle: {input_title}")
@@ -542,7 +545,7 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
                 # make sure the date entered by the user is in the correct format.
                 # This could help later on when generating reports
                 try:
-                    datetime.strptime(input_due_date, "%d-%m-%Y").replace(
+                    datetime.strptime(input_due_date, DATETIME_FORMAT).replace(
                         tzinfo=timezone.utc,
                     )
                     break
@@ -657,6 +660,122 @@ def delete_task(task_manager: TaskManager):
     task_manager.save_tasks()
 
     print("Task deleted...")
+
+
+def generate_report(task_manager: TaskManager, user_manager: UserManager):
+    """
+    Takes all the data from the TaskManager and UserManager objects to generate a report.
+
+    Output the reports to files.
+
+    :param task_manager: The TaskManager object that manages current tasks
+    :type task_manager: TaskManager
+    :param user_manager: UserManager object that contains the users list
+    :type user_manager: UserManager
+    """
+    date_report_generated = datetime.now(tz=timezone.utc).strftime(
+        f"{DATETIME_FORMAT} %H:%M",
+    )
+
+    ### Tasks reporting
+    total_tasks = len(task_manager.tasks)  # Also used for users reporting
+    total_completed_tasks = len(
+        [task for task in task_manager.tasks if task.is_complete],
+    )
+    total_incomplete_tasks = total_tasks - total_completed_tasks
+    total_overdue_tasks = len(
+        [
+            task
+            for task in task_manager.tasks
+            if not task.is_complete
+            and datetime.strptime(task.due_date, DATETIME_FORMAT).replace(
+                tzinfo=timezone.utc,
+            )
+            < datetime.now(tz=timezone.utc)
+        ],
+    )
+
+    percentage_incomplete_tasks: float = (
+        round((total_incomplete_tasks / total_tasks) * 100, 2)
+        if total_tasks != 0
+        else 0
+    )
+
+    percentage_overdue_tasks: float = (
+        round((total_overdue_tasks / total_tasks) * 100, 2) if total_tasks != 0 else 0
+    )
+
+    # Write tasks report to the task overview file
+    with Path.open(TASK_OVERVIEW_FILE_PATH, "w") as file:
+        file.write(
+            f"{date_report_generated}, {total_tasks}, {total_completed_tasks}, {total_incomplete_tasks}, {total_overdue_tasks}, {percentage_incomplete_tasks}, {percentage_overdue_tasks}\n",
+        )
+
+    ### Users reporting
+    total_users = len(user_manager.users)
+    user_report = {}
+
+    for user in user_manager.users:
+        total_user_tasks = len(
+            [task for task in task_manager.tasks if task.assigned_to == user.username],
+        )
+        total_user_completed_tasks = len(
+            [
+                task
+                for task in task_manager.tasks
+                if task.assigned_to == user.username and task.is_complete
+            ],
+        )
+        total_user_incomplete_tasks = total_user_tasks - total_user_completed_tasks
+        total_user_overdue_tasks = len(
+            [
+                task
+                for task in task_manager.tasks
+                if not task.is_complete
+                and datetime.strptime(task.due_date, DATETIME_FORMAT).replace(
+                    tzinfo=timezone.utc,
+                )
+                < datetime.now(tz=timezone.utc)
+                and task.assigned_to == user.username
+            ],
+        )
+
+        percentage_user_total_tasks: float = (
+            round((total_user_tasks / total_tasks) * 100, 2) if total_tasks != 0 else 0
+        )
+        percentage_user_total_completed_tasks: float = (
+            round((total_user_completed_tasks / total_user_tasks) * 100, 2)
+            if total_user_tasks != 0
+            else 0
+        )
+        percentage_user_total_incomplete_tasks: float = (
+            round((total_user_incomplete_tasks / total_user_tasks) * 100, 2)
+            if total_user_tasks != 0
+            else 0
+        )
+        percentage_user_overdue_tasks: float = (
+            round((total_user_overdue_tasks / total_user_tasks) * 100, 2)
+            if total_user_tasks != 0
+            else 0
+        )
+
+        user_report[user.username] = {
+            "total_tasks": total_user_tasks,
+            "%_total_tasks": percentage_user_total_tasks,
+            "%_complete_tasks": percentage_user_total_completed_tasks,
+            "%_incomplete_tasks": percentage_user_total_incomplete_tasks,
+            "%_overdue_tasks": percentage_user_overdue_tasks,
+        }
+
+    # Write users report to the user overview file
+    with Path.open(USER_OVERVIEW_FILE_PATH, "w") as file:
+        file.write(f"{total_users}, {total_tasks}\n")
+        for username, stats in user_report.items():
+            file.write(
+                f"{username}, {stats['total_tasks']}, {stats['%_total_tasks']}, {stats['%_complete_tasks']}, {stats['%_incomplete_tasks']}, {stats['%_overdue_tasks']}",
+            )
+
+    print("Tasks and Users report generated...")
 
 
 # ==== Main program loop Section ====
