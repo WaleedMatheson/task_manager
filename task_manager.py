@@ -806,20 +806,17 @@ def main():
             view_mine(current_user, task_manager, user_manager)
 
         elif menu == "vc":  # View completed tasks (Admin only)
-            # TODO: Implement View completed tasks functionality
-            pass
+            view_completed_tasks(task_manager)
 
         elif menu == "del":  # Delete a task (Admin only)
-            # TODO: Implement Delete a task functionality
-            pass
+            delete_task(task_manager)
 
         elif menu == "ds":  # Display statistics (Admin only)
             # TODO: Implement Display statistics functionality
             pass
 
         elif menu == "gr":  # Generate reports (Admin only)
-            # TODO: Implement Generate reports functionality
-            pass
+            generate_report(task_manager, user_manager)
 
         elif menu == "e":  # Exit
             print("Goodbye!!!")
