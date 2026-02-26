@@ -496,23 +496,9 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
         print("_" * TERMINAL_PRINT_WIDTH)
 
     # Logic to edit tasks for current user
-    while True:
-        print("Enter task number to edit or enter -1 to return to main menu")
-        try:
-            input_index = int(input("\tEnter selection: "))
-            if input_index == -1:
-                return
-            if input_index < -1 or input_index > len(my_tasks) or input_index == 0:
-                print("You have entered an invalid input. Please try again...")
-                continue
-            # This is -1 because the index numbers for the tasks start from 1 for aesthetics
-            if my_tasks[input_index - 1].is_complete:
-                print("This task is complete and cannot be edited\n")
-                continue
-            break
-        except ValueError:
-            print("You have entered an invalid input. Please try again...")
-            continue
+    input_index = get_valid_task_number(task_manager)
+    if not input_index:
+        return
 
     # This is correcting the index so editing the Task objects in the list works correctly
     corrected_index = input_index - 1
@@ -630,29 +616,16 @@ def delete_task(task_manager: TaskManager):
         print("_" * TERMINAL_PRINT_WIDTH)
 
     while True:
-        print("Enter task number to delete or enter -1 to return to main menu")
-        try:
-            input_index = int(input("\tEnter selection: "))
-            if input_index == -1:
-                return
-            if (
-                input_index < -1
-                or input_index > len(task_manager.tasks)
-                or input_index == 0
-            ):
-                print("You have entered an invalid input. Please try again...")
-                continue
+        input_index = get_valid_task_number(task_manager)
+        if not input_index:
+            return
 
-            confirm_delete = input(
-                f"Are you sure you want to delete task {input_index}? (y/n) ",
-            )
-            if confirm_delete != "y":
-                continue
-            break
-
-        except ValueError:
-            print("You have entered an invalid input. Please try again...")
+        confirm_delete = input(
+            f"Are you sure you want to delete task {input_index}? (y/n) ",
+        )
+        if confirm_delete != "y":
             continue
+        break
 
     corrected_index = input_index - 1
 
@@ -660,6 +633,34 @@ def delete_task(task_manager: TaskManager):
     task_manager.save_tasks()
 
     print("Task deleted...")
+
+
+def get_valid_task_number(task_manager: TaskManager) -> int | None:
+    """
+    A recursive function to check if the task number entered is valid.
+
+    :param task_manager: The TaskManager object that manages current tasks
+    :type task_manager: TaskManager
+    :return: Returns the user input or `None` if user exits this function
+    :rtype: int | None
+    """
+    try:
+        user_input = int(
+            input("\tEnter task number to select, or -1 to return to main menu: "),
+        )
+        if user_input == -1:
+            return None
+        if user_input < -1 or user_input > len(task_manager.tasks) or user_input == 0:
+            print("You have entered an invalid input. Please try again...")
+            return get_valid_task_number(task_manager)
+        # This is -1 because the index numbers for the tasks start from 1 for aesthetics
+        if task_manager.tasks[user_input - 1].is_complete:
+            print("This task is complete and cannot be edited\n")
+            return None
+    except ValueError:
+        print("You have entered an invalid input. Please try again...")
+        return get_valid_task_number(task_manager)
+    return user_input
 
 
 def generate_report(task_manager: TaskManager, user_manager: UserManager):
