@@ -10,6 +10,7 @@ USER_FILE_PATH = Path(Path(__file__).parent / "user.txt")
 TASKS_FILE_PATH = Path(Path(__file__).parent / "tasks.txt")
 EXPECTED_USER_FIELDS = 3
 EXPECTED_TASKS_FIELDS = 7
+TERMINAL_PRINT_WIDTH = 70
 
 
 # ==== Class Section ====
@@ -299,28 +300,20 @@ def login(user_manager: UserManager) -> User:
             sys.exit()
 
 
-def display_users() -> list:
+def display_existing_users(user_manager: UserManager):
     """
-    Prints out a comma separated row of all existing users then returns a list of all users.
+    Prints out a comma separated row of all existing users sorted in alphabetical order.
 
-    :return: A list of all existing users
-    :rtype: list
+    :param user_manager: UserManager object that contains the users list
+    :type user_manager: UserManager
     """
-    users = []
-    with Path.open(USER_FILE_PATH) as user_file:
-        for line in user_file:
-            parts = line.strip().split(", ")
-
-            if len(parts) == EXPECTED_USER_FIELDS:
-                file_username = parts[0]
-                users.append(file_username)
-
-    users.sort()
-    print(f"Existing list of users: {', '.join(users)}")
-    return users
+    print(
+        "Existing list of users:"
+        f"\n\t{textwrap.fill(', '.join(user_manager.get_users()), TERMINAL_PRINT_WIDTH)}",
+    )
 
 
-def add_task(current_user: User, task_manager: TaskManager):
+def add_task(current_user: User, task_manager: TaskManager, user_manager: UserManager):
     """
     Take inputs from a user to add a task.
 
@@ -331,12 +324,15 @@ def add_task(current_user: User, task_manager: TaskManager):
     :type current_user: User
     :param task_manager: The TaskManager object that manages current tasks
     :type task_manager: TaskManager
+    :param user_manager: UserManager object that contains the users list
+    :type user_manager: UserManager
     """
     print("Enter task details...")
     assigned_by = current_user.username
 
     # Logic to make sure the entered user exists
-    existing_users = display_users()
+    display_existing_users(user_manager)
+    existing_users = user_manager.get_users()
     while True:
         input_assigned_to = input("\tAssign to: ")
         if input_assigned_to not in existing_users:
@@ -397,7 +393,7 @@ def register_user():
     print("Enter new user details:")
 
     # Get existing users to make sure the new username isn't already in the user file
-    existing_users = display_users()
+    existing_users = display_existing_users()
     while True:
         input_username = input("\tUsername: ")
         if input_username not in existing_users:
@@ -522,7 +518,7 @@ def view_mine(current_user: User | Admin, task_manager: TaskManager):
     while True:
         edit_menu = input("Enter selection: ")
         if edit_menu == "u":
-            existing_users = display_users()
+            existing_users = display_existing_users()
             while True:
                 input_username = input("\tAssign to: ")
                 if input_username in existing_users:
