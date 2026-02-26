@@ -565,6 +565,36 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
     print("Updated task saved to file...")
 
 
+def view_completed_tasks(task_manager: TaskManager):
+    """
+    View all completed tasks. Can only be accessed by an Admin.
+
+    :param task_manager: The TaskManager object that manages current tasks
+    :type task_manager: TaskManager
+    """
+    completed_tasks = [task for task in task_manager.tasks if task.is_complete]
+    if not completed_tasks:
+        print("There are no completed tasks yet...\n")
+        return
+
+    print(f"Number of completed tasks: {len(completed_tasks)}")
+    print("_" * TERMINAL_PRINT_WIDTH)
+    for task in completed_tasks:
+        # Using the `textwrap` library to make the longer strings look neater
+        print(
+            f"Task:\n\t\t{textwrap.fill(task.title, TERMINAL_PRINT_WIDTH, subsequent_indent='\t\t')}",
+        )
+        print(f"Assigned to:\t{task.assigned_to}")
+        print(f"Assigned by:\t{task.assigned_by}")
+        print(f"Date assigned:\t{task.date_assigned}")
+        print(f"Due date:\t{task.due_date}")
+        print("Task complete?\tYes")
+        print(
+            f"Task description:\n    {textwrap.fill(task.description, TERMINAL_PRINT_WIDTH, subsequent_indent='    ')}",
+        )
+        print("_" * TERMINAL_PRINT_WIDTH)
+
+
 # ==== Main program loop Section ====
 def main():
     task_manager = TaskManager(TASKS_FILE_PATH)
