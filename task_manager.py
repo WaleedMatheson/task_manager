@@ -595,6 +595,70 @@ def view_completed_tasks(task_manager: TaskManager):
         print("_" * TERMINAL_PRINT_WIDTH)
 
 
+def delete_task(task_manager: TaskManager):
+    """
+    Delete a task. Can only be accessed by an Admin.
+
+    :param task_manager: The TaskManager object that manages current tasks
+    :type task_manager: TaskManager
+    :return: Returns to exit function with no task deleted
+    :rtype: None
+    """
+    print("Select the task number you want to delete...")
+    print("_" * TERMINAL_PRINT_WIDTH)
+
+    # starting from 1 for aesthetics, later on there is logic to handle correct index use
+    for task_number, task in enumerate(task_manager.tasks, start=1):
+        is_complete = "Yes" if task.is_complete else "No"
+
+        print()
+        print(f"Task number:\t{task_number}")
+        print(
+            f"Task:\t\t{textwrap.fill(task.title, TERMINAL_PRINT_WIDTH, subsequent_indent='\t\t')}",
+        )
+        print(f"Assigned to:\t{task.assigned_to}")
+        print(f"Assigned by:\t{task.assigned_by}")
+        print(f"Date assigned:\t{task.date_assigned}")
+        print(f"Due date:\t{task.due_date}")
+        print(f"Task complete?\t{is_complete}")
+        print(
+            f"Task description:\n    {textwrap.fill(task.description, TERMINAL_PRINT_WIDTH, subsequent_indent='    ')}",
+        )
+        print("_" * TERMINAL_PRINT_WIDTH)
+
+    while True:
+        print("Enter task number to delete or enter -1 to return to main menu")
+        try:
+            input_index = int(input("\tEnter selection: "))
+            if input_index == -1:
+                return
+            if (
+                input_index < -1
+                or input_index > len(task_manager.tasks)
+                or input_index == 0
+            ):
+                print("You have entered an invalid input. Please try again...")
+                continue
+
+            confirm_delete = input(
+                f"Are you sure you want to delete task {input_index}? (y/n) ",
+            )
+            if confirm_delete != "y":
+                continue
+            break
+
+        except ValueError:
+            print("You have entered an invalid input. Please try again...")
+            continue
+
+    corrected_index = input_index - 1
+
+    task_manager.tasks.pop(corrected_index)
+    task_manager.save_tasks()
+
+    print("Task deleted...")
+
+
 # ==== Main program loop Section ====
 def main():
     task_manager = TaskManager(TASKS_FILE_PATH)
