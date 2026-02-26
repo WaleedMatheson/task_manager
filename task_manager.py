@@ -433,8 +433,7 @@ def view_all_tasks(task_manager: TaskManager):
     :type task_manager: TaskManager
     """
     # This is used for styling the width of the printout
-    print_width = 70
-    print("_" * print_width)
+    print("_" * TERMINAL_PRINT_WIDTH)
 
     tasks = task_manager.tasks
 
@@ -443,7 +442,7 @@ def view_all_tasks(task_manager: TaskManager):
 
         # Using the `textwrap` library to make the longer strings look neater
         print(
-            f"Task:\n\t\t{textwrap.fill(task.title, print_width, subsequent_indent='\t\t')}",
+            f"Task:\n\t\t{textwrap.fill(task.title, TERMINAL_PRINT_WIDTH, subsequent_indent='\t\t')}",
         )
         print(f"Assigned to:\t{task.assigned_to}")
         print(f"Assigned by:\t{task.assigned_by}")
@@ -451,9 +450,9 @@ def view_all_tasks(task_manager: TaskManager):
         print(f"Due date:\t{task.due_date}")
         print(f"Task complete?\t{is_complete}")
         print(
-            f"Task description:\n    {textwrap.fill(task.description, print_width, subsequent_indent='    ')}",
+            f"Task description:\n    {textwrap.fill(task.description, TERMINAL_PRINT_WIDTH, subsequent_indent='    ')}",
         )
-        print("_" * print_width)
+        print("_" * TERMINAL_PRINT_WIDTH)
 
 
 def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserManager):
@@ -465,8 +464,6 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
     :param task_manager: The TaskManager object that manages current tasks
     :type task_manager: TaskManager
     """
-    print_width = 70
-
     my_tasks: list[Task] = task_manager.get_user_tasks(current_user.username)
 
     if len(my_tasks) == 0:
@@ -474,7 +471,7 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
         return
 
     print(f"Number of tasks assigned to you: {len(my_tasks)}")
-    print("_" * print_width)
+    print("_" * TERMINAL_PRINT_WIDTH)
 
     # starting from 1 for aesthetics, later on there is logic to handle correct index use
     for task_number, task in enumerate(my_tasks, start=1):
@@ -483,7 +480,7 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
         print()
         print(f"Task number:\t{task_number}")
         print(
-            f"Task:\t\t{textwrap.fill(task.title, print_width, subsequent_indent='\t\t')}",
+            f"Task:\t\t{textwrap.fill(task.title, TERMINAL_PRINT_WIDTH, subsequent_indent='\t\t')}",
         )
         print(f"Assigned to:\t{task.assigned_to}")
         print(f"Assigned by:\t{task.assigned_by}")
@@ -491,9 +488,9 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
         print(f"Due date:\t{task.due_date}")
         print(f"Task complete?\t{is_complete}")
         print(
-            f"Task description:\n    {textwrap.fill(task.description, print_width, subsequent_indent='    ')}",
+            f"Task description:\n    {textwrap.fill(task.description, TERMINAL_PRINT_WIDTH, subsequent_indent='    ')}",
         )
-        print("_" * print_width)
+        print("_" * TERMINAL_PRINT_WIDTH)
 
     # Logic to edit tasks for current user
     while True:
