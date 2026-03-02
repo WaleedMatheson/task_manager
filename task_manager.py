@@ -44,10 +44,10 @@ class User:
         """
         return (
             "\nSelect one of the following options:\n"
-            "\ta - add task\n"
+            "\ta  - add task\n"
             "\tva - view all tasks\n"
             "\tvm - view my tasks\n"
-            "\te - exit\n\n"
+            "\te  - exit\n\n"
             "Enter selection: "
         )
 
@@ -94,15 +94,15 @@ class Admin(User):
         """
         return (
             "\nSelect one of the following options:\n"
-            "\tr - register a user\n"
-            "\ta - add task\n"
-            "\tva - view all tasks\n"
-            "\tvm - view my tasks\n"
-            "\tvc - view completed tasks\n"
+            "\tr   - register a user\n"
+            "\ta   - add task\n"
+            "\tva  - view all tasks\n"
+            "\tvm  - view my tasks\n"
+            "\tvc  - view completed tasks\n"
             "\tdel - delete a task\n"
-            "\tds - display statistics\n"
-            "\tgr - generate reports\n"
-            "\te - exit\n\n"
+            "\tds  - display statistics\n"
+            "\tgr  - generate reports\n"
+            "\te   - exit\n\n"
             "Enter selection: "
         )
 
@@ -789,10 +789,9 @@ def display_statistics(task_manager: TaskManager, user_manager: UserManager):
     :param user_manager: UserManager object that contains the users list
     :type user_manager: UserManager
     """
+    lw = 19  # Label width for text alignment when printing to the CLI
     # Ensure report files exist before attempting to read them, generating them if necessary
-    if not Path.exists(TASK_OVERVIEW_FILE_PATH) or not Path.exists(
-        USER_OVERVIEW_FILE_PATH,
-    ):
+    if not TASK_OVERVIEW_FILE_PATH.exists() or not USER_OVERVIEW_FILE_PATH.exists():
         generate_report(task_manager, user_manager)
 
     ### Tasks
@@ -808,14 +807,14 @@ def display_statistics(task_manager: TaskManager, user_manager: UserManager):
             percentage_overdue_tasks,
         ) = file.readline().strip().split(", ")
 
-    print(f"\tReport Date & Time: {date_report_generated}")
-    print(f"\tTotal Tasks:\t    {total_tasks}")
-    print(f"\tCompleted Tasks:    {total_completed_tasks}")
+    print(f"\t{'Report Date & Time:':<{lw}} {date_report_generated}")
+    print(f"\t{'Total Tasks:':<{lw}} {total_tasks}")
+    print(f"\t{'Completed Tasks:':<{lw}} {total_completed_tasks}")
     print(
-        f"\tIncomplete Tasks:   {total_incomplete_tasks} ({float(percentage_incomplete_tasks):.2f}%)",
+        f"\t{'Incomplete Tasks:':<{lw}} {total_incomplete_tasks} ({float(percentage_incomplete_tasks):.2f}%)",
     )
     print(
-        f"\tOverdue Tasks:\t    {total_overdue_tasks} ({float(percentage_overdue_tasks):.2f}%)",
+        f"\t{'Overdue Tasks:':<{lw}} {total_overdue_tasks} ({float(percentage_overdue_tasks):.2f}%)",
     )
 
     ### Users
@@ -848,8 +847,8 @@ def display_statistics(task_manager: TaskManager, user_manager: UserManager):
             print(
                 f"| {username:<8} | {int(total_user_tasks):<5} | {float(percentage_user_total_tasks):>9.2f} | {float(percentage_user_total_completed_tasks):>13.2f} | {float(percentage_user_total_incomplete_tasks):>14.2f} | {float(percentage_user_overdue_tasks):>11.2f} |",
             )
-    print("-" * table_width)
-    print()
+        print("-" * table_width)
+        print()
 
 
 # ==== Main Program Loop Section ====
