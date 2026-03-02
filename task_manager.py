@@ -586,18 +586,17 @@ def delete_task(task_manager: TaskManager):
         task.display(task_number=task_number)
 
     while True:
-        input_index = get_valid_task_number(task_manager.tasks)
+        input_index = get_valid_task_number(task_manager.tasks, allow_completed=True)
         if not input_index:
             return
 
+        corrected_index = input_index - 1
         confirm_delete = input(
-            f"\nAre you sure you want to delete task {input_index}? (y/n) ",
+            f'\nAre you sure you want to delete task number {input_index}: "{task_manager.tasks[corrected_index].title}"? (y/n) ',
         )
         if confirm_delete != "y":
             continue
         break
-
-    corrected_index = input_index - 1
 
     task_manager.tasks.pop(corrected_index)
     task_manager.save_tasks()
@@ -605,39 +604,45 @@ def delete_task(task_manager: TaskManager):
     print("\t***** Task deleted *****")
 
 
-def get_valid_task_number(tasks: list[Task]) -> int | None:
+def get_valid_task_number(
+    tasks: list[Task],
+    *,
+    allow_completed: bool = False,
+) -> int | None:
     """
     A recursive function to check if the task number entered is valid.
 
     :param tasks: A list of tasks for the current user
     :type tasks: List[Task]
-    :return: Returns the valid task number, or None if the user exits or if there are no tasks in the list.
+    :param allow_completed: Flag to determine if completed tasks can be selected
+    :type allow_completed: bool
+    :return: Returns the valid task number, or None if the user exits
     :rtype: int | None
     """
     if len(tasks) == 0:
         return None
+
     try:
         user_input = int(
-            input("\n\tEnter task number to edit, or -1 to return to main menu: "),
+            input("\n\tEnter task number, or -1 to return to main menu: "),
         )
     except ValueError:
         print("You have entered an invalid input, please try again...")
-
-        return get_valid_task_number(tasks)
+        return get_valid_task_number(tasks, allow_completed=allow_completed)
     else:
         if user_input == -1:
             return None
 
     if user_input < -1 or user_input > len(tasks) or user_input == 0:
         print("You have entered an invalid input, please try again...")
-        return get_valid_task_number(tasks)
+        return get_valid_task_number(tasks, allow_completed=allow_completed)
 
-    # This is -1 because the index numbers for the tasks start from 1 for aesthetics
-    if tasks[user_input - 1].is_complete:
+    # Check if completed tasks should be blocked
+    if not allow_completed and tasks[user_input - 1].is_complete:
         print(
-            "This task is complete and cannot be edited, please try again... \n",
+            "This task is complete and cannot be edited, please try again...\n",
         )
-        return get_valid_task_number(tasks)
+        return get_valid_task_number(tasks, allow_completed=allow_completed)
 
     return user_input
 
