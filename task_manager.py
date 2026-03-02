@@ -130,8 +130,13 @@ class UserManager:
 
     def load_users(self):
         """Load all users from the user source into a `users` list within this object."""
-        with Path.open(self.file_path) as file:
-            parts = []
+        if not self.file_path.exists():
+            print(
+                "\t***** User file does not exist, please add it and run this program again *****",
+            )
+            sys.exit()
+
+        with self.file_path.open(encoding="utf-8") as file:
             for line in file:
                 parts = line.strip().split(", ")
 
@@ -151,7 +156,7 @@ class UserManager:
 
     def save_users(self):
         """Save current users to file."""
-        with Path.open(self.file_path, "w") as file:
+        with self.file_path.open("w", encoding="utf-8") as file:
             for user in self.users:
                 file.write(user.to_csv_string() + "\n")
 
@@ -247,8 +252,13 @@ class TaskManager:
 
     def load_tasks(self):
         """Load all tasks from the tasks source into a `tasks` list in this object."""
-        with Path.open(self.file_path) as file:
-            parts = []
+        if not self.file_path.exists():
+            print(
+                "\t***** Tasks file does not exist, please add it and run this program again *****",
+            )
+            sys.exit()
+
+        with self.file_path.open(encoding="utf-8") as file:
             for line in file:
                 parts = line.strip().split(", ")
 
@@ -292,7 +302,7 @@ class TaskManager:
 
     def save_tasks(self):
         """Save current tasks to file."""
-        with Path.open(self.file_path, "w") as file:
+        with self.file_path.open("w", encoding="utf-8") as file:
             for task in self.tasks:
                 file.write(task.to_csv_string() + "\n")
 
@@ -527,7 +537,7 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
                 print("User doesn't exist, try again...")
             my_tasks[corrected_index].assigned_to = input_username
             print(
-                f"\nTask assigned to new user {my_tasks[corrected_index].assigned_to}"
+                f"\nTask assigned to new user {my_tasks[corrected_index].assigned_to}",
             )
             break
 
@@ -694,7 +704,7 @@ def generate_report(task_manager: TaskManager, user_manager: UserManager):
     )
 
     # Write tasks report to the task overview file
-    with Path.open(TASK_OVERVIEW_FILE_PATH, "w") as file:
+    with Path.open(TASK_OVERVIEW_FILE_PATH, "w", encoding="utf-8") as file:
         file.write(
             f"{date_report_generated}, {total_tasks}, {total_completed_tasks}, {total_incomplete_tasks}, {total_overdue_tasks}, {percentage_incomplete_tasks}, {percentage_overdue_tasks}\n",
         )
@@ -757,7 +767,7 @@ def generate_report(task_manager: TaskManager, user_manager: UserManager):
         }
 
     # Write users report to the user overview file
-    with Path.open(USER_OVERVIEW_FILE_PATH, "w") as file:
+    with Path.open(USER_OVERVIEW_FILE_PATH, "w", encoding="utf-8") as file:
         file.write(f"{total_users}, {total_tasks}\n")
         for username, stats in user_report.items():
             file.write(
@@ -784,7 +794,7 @@ def display_statistics(task_manager: TaskManager, user_manager: UserManager):
 
     ### Tasks
     print("\nTasks Statistics...")
-    with Path.open(TASK_OVERVIEW_FILE_PATH) as file:
+    with Path.open(TASK_OVERVIEW_FILE_PATH, encoding="utf-8") as file:
         (
             date_report_generated,
             total_tasks,
@@ -812,7 +822,7 @@ def display_statistics(task_manager: TaskManager, user_manager: UserManager):
     print()
     print()
     print("User Statistics...")
-    with Path.open(USER_OVERVIEW_FILE_PATH) as file:
+    with Path.open(USER_OVERVIEW_FILE_PATH, encoding="utf-8") as file:
         total_users, total_tasks = file.readline().strip().split(", ")
         print(f"\tTotal Users: {total_users}")
         print(f"\tTotal Tasks: {total_tasks}")
