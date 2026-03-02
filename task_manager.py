@@ -611,7 +611,7 @@ def get_valid_task_number(tasks: list[Task]) -> int | None:
 
     :param tasks: A list of tasks for the current user
     :type tasks: List[Task]
-    :return: Returns the valid task number, or None if the user exits
+    :return: Returns the valid task number, or None if the user exits or if there are no tasks in the list.
     :rtype: int | None
     """
     if len(tasks) == 0:
@@ -620,20 +620,25 @@ def get_valid_task_number(tasks: list[Task]) -> int | None:
         user_input = int(
             input("\n\tEnter task number to edit, or -1 to return to main menu: "),
         )
-        if user_input == -1:
-            return None
-        if user_input < -1 or user_input > len(tasks) or user_input == 0:
-            print("You have entered an invalid input, please try again...")
-            return get_valid_task_number(tasks)
-        # This is -1 because the index numbers for the tasks start from 1 for aesthetics
-        if tasks[user_input - 1].is_complete:
-            print(
-                "This task is complete and cannot be edited, please try again... \n",
-            )
-            return get_valid_task_number(tasks)
     except ValueError:
         print("You have entered an invalid input, please try again...")
+
         return get_valid_task_number(tasks)
+    else:
+        if user_input == -1:
+            return None
+
+    if user_input < -1 or user_input > len(tasks) or user_input == 0:
+        print("You have entered an invalid input, please try again...")
+        return get_valid_task_number(tasks)
+
+    # This is -1 because the index numbers for the tasks start from 1 for aesthetics
+    if tasks[user_input - 1].is_complete:
+        print(
+            "This task is complete and cannot be edited, please try again... \n",
+        )
+        return get_valid_task_number(tasks)
+
     return user_input
 
 
