@@ -208,7 +208,7 @@ class Task:
         return f"{self.assigned_by}, {self.assigned_to}, {self.title}, {self.description}, {self.date_assigned}, {self.due_date}, {task_status}"
 
     def complete_task(self):
-        """Set `is_completed` to True."""
+        """Set `is_complete` attribute to True."""
         self.is_complete = True
 
     def display(self, task_number=None):
@@ -384,17 +384,7 @@ def add_task(current_user: User, task_manager: TaskManager, user_manager: UserMa
         input_title = input("\tTitle: ")
         input_description = input("\tDescription: ")
 
-        while True:
-            input_due_date = input("\tDue Date (e.g. 24-04-2025): ")
-            # Enforce strict date formatting to ensure report generation works correctly later.
-            try:
-                datetime.strptime(input_due_date, DATETIME_FORMAT).replace(
-                    tzinfo=timezone.utc,
-                )
-                break
-
-            except ValueError:
-                print("Date format incorrect, try again...")
+        input_due_date = get_valid_date("\tDue Date (e.g. 24-04-2025): ")
 
         assigned_date = datetime.now(tz=timezone.utc).strftime(DATETIME_FORMAT)
 
@@ -527,7 +517,7 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
 
     while True:
         edit_menu = input("Enter selection: ")
-        if edit_menu == "u":
+        if edit_menu == "u":  # Change assigned user
             display_existing_users(user_manager)
             existing_users = user_manager.get_users()
             while True:
@@ -541,23 +531,13 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
             )
             break
 
-        if edit_menu == "d":
-            while True:
-                input_due_date = input("\tDue Date (e.g. 24-04-2025): ")
-                # Enforce strict date formatting to ensure report generation works correctly later.
-                try:
-                    datetime.strptime(input_due_date, DATETIME_FORMAT).replace(
-                        tzinfo=timezone.utc,
-                    )
-                    break
-
-                except ValueError:
-                    print("Date format incorrect, try again...")
+        if edit_menu == "d":  # Change due date
+            input_due_date = get_valid_date("\tDue Date (e.g. 24-04-2025): ")
             my_tasks[corrected_index].due_date = input_due_date
             print(f"Due date changed to {my_tasks[corrected_index].due_date}")
             break
 
-        if edit_menu == "c":
+        if edit_menu == "c":  # Mark as complete
             my_tasks[corrected_index].complete_task()
             print(f"Task: {my_tasks[corrected_index].title} marked as completed")
             break
@@ -655,6 +635,24 @@ def get_valid_task_number(tasks: list[Task]) -> int | None:
         print("You have entered an invalid input, please try again...")
         return get_valid_task_number(tasks)
     return user_input
+
+
+def get_valid_date(prompt: str) -> str:
+    """
+    Repeatedly prompts the user for a date until a valid format is entered.
+
+    :param prompt: The text to display to the user
+    :return: A validated date string in DATETIME_FORMAT
+    """
+    while True:
+        user_input = input(prompt)
+        try:
+            # We parse it just to validate, then return the string
+            datetime.strptime(user_input, DATETIME_FORMAT).replace(tzinfo=timezone.utc)
+        except ValueError:
+            print(f"Invalid format. Please use {DATETIME_FORMAT} (e.g. 24-03-2026)...")
+        else:
+            return user_input
 
 
 def generate_report(task_manager: TaskManager, user_manager: UserManager):
