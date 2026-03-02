@@ -704,7 +704,7 @@ def generate_report(task_manager: TaskManager, user_manager: UserManager):
     )
 
     # Write tasks report to the task overview file
-    with Path.open(TASK_OVERVIEW_FILE_PATH, "w", encoding="utf-8") as file:
+    with TASK_OVERVIEW_FILE_PATH.open("w", encoding="utf-8") as file:
         file.write(
             f"{date_report_generated}, {total_tasks}, {total_completed_tasks}, {total_incomplete_tasks}, {total_overdue_tasks}, {percentage_incomplete_tasks}, {percentage_overdue_tasks}\n",
         )
@@ -767,7 +767,7 @@ def generate_report(task_manager: TaskManager, user_manager: UserManager):
         }
 
     # Write users report to the user overview file
-    with Path.open(USER_OVERVIEW_FILE_PATH, "w", encoding="utf-8") as file:
+    with USER_OVERVIEW_FILE_PATH.open("w", encoding="utf-8") as file:
         file.write(f"{total_users}, {total_tasks}\n")
         for username, stats in user_report.items():
             file.write(
@@ -794,7 +794,7 @@ def display_statistics(task_manager: TaskManager, user_manager: UserManager):
 
     ### Tasks
     print("\nTasks Statistics...")
-    with Path.open(TASK_OVERVIEW_FILE_PATH, encoding="utf-8") as file:
+    with TASK_OVERVIEW_FILE_PATH.open(encoding="utf-8") as file:
         (
             date_report_generated,
             total_tasks,
@@ -822,7 +822,7 @@ def display_statistics(task_manager: TaskManager, user_manager: UserManager):
     print()
     print()
     print("User Statistics...")
-    with Path.open(USER_OVERVIEW_FILE_PATH, encoding="utf-8") as file:
+    with USER_OVERVIEW_FILE_PATH.open(encoding="utf-8") as file:
         total_users, total_tasks = file.readline().strip().split(", ")
         print(f"\tTotal Users: {total_users}")
         print(f"\tTotal Tasks: {total_tasks}")
