@@ -827,8 +827,7 @@ def display_statistics(task_manager: TaskManager, user_manager: UserManager):
     table_width = len(header)
 
     print()
-    print()
-    print("User Statistics...")
+    print("\nUser Statistics...")
     with USER_OVERVIEW_FILE_PATH.open(encoding="utf-8") as file:
         total_users, total_tasks = file.readline().strip().split(", ")
         print(f"\tTotal Users: {total_users}")
