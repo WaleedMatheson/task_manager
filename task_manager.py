@@ -869,6 +869,22 @@ def main():
     # Also this way the menu inputs from the user are validated by the User|Admin object
     current_user = login(user_manager)
 
+    # Mapping menu inputs to actions to reduce complexity.
+    # The lambda keyword creates an anonymous function, delaying execution
+    # until the user actually selects the corresponding menu option.
+    menu_actions = {
+        "r": lambda: register_user(user_manager),
+        "a": lambda: add_task(current_user, task_manager, user_manager),
+        "va": lambda: view_all_tasks(task_manager),
+        "vm": lambda: view_mine(current_user, task_manager, user_manager),
+        "vc": lambda: view_completed_tasks(task_manager),
+        "del": lambda: delete_task(task_manager),
+        "ds": lambda: display_statistics(task_manager, user_manager),
+        "gr": lambda: generate_report(task_manager, user_manager),
+        # For the exit, using a tuple allows the lambda to run both print and exit functions
+        "e": lambda: (print("Goodbye!!!"), sys.exit()),
+    }
+
     while True:
         while True:
             menu = input(current_user.get_menu())
@@ -876,36 +892,9 @@ def main():
                 print("You have entered an invalid input. Please try again...")
                 continue
             break
-        if menu == "r":  # Register user (Admin only)
-            register_user(user_manager)
 
-        elif menu == "a":  # Add task
-            add_task(current_user, task_manager, user_manager)
-
-        elif menu == "va":  # View all tasks
-            view_all_tasks(task_manager)
-
-        elif menu == "vm":  # View my tasks
-            view_mine(current_user, task_manager, user_manager)
-
-        elif menu == "vc":  # View completed tasks (Admin only)
-            view_completed_tasks(task_manager)
-
-        elif menu == "del":  # Delete a task (Admin only)
-            delete_task(task_manager)
-
-        elif menu == "ds":  # Display statistics (Admin only)
-            display_statistics(task_manager, user_manager)
-
-        elif menu == "gr":  # Generate reports (Admin only)
-            generate_report(task_manager, user_manager)
-
-        elif menu == "e":  # Exit
-            print("Goodbye!!!")
-            sys.exit()
-
-        else:
-            print("You have entered an invalid input. Please try again...")
+        # Execute the matched function from the dictionary
+        menu_actions[menu]()
 
 
 if __name__ == "__main__":
