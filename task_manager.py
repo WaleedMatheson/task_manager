@@ -206,6 +206,32 @@ class Task:
         """Set `is_completed` to True."""
         self.is_complete = True
 
+    def display(self, task_number=None):
+        """
+        Prints a formatted version of the task to the terminal.
+
+        `textwrap` library is used to make the longer strings look neater.
+
+        :param task_number: If a task number is given it will be displayed
+        :type task_number: int | None
+        """
+        print()
+        if task_number:
+            print(f"Task number:\t{task_number}")
+
+        print(
+            f"Task:\t\t{textwrap.fill(self.title, TERMINAL_PRINT_WIDTH, subsequent_indent='\t\t')}",
+        )
+        print(f"Assigned to:\t{self.assigned_to}")
+        print(f"Assigned by:\t{self.assigned_by}")
+        print(f"Date assigned:\t{self.date_assigned}")
+        print(f"Due date:\t{self.due_date}")
+        print(f"Task complete?\t{'Yes' if self.is_complete else 'No'}")
+        print(
+            f"Task description:\n    {textwrap.fill(self.description, TERMINAL_PRINT_WIDTH, subsequent_indent='    ')}",
+        )
+        print("_" * TERMINAL_PRINT_WIDTH)
+
 
 class TaskManager:
     def __init__(self, file_path: Path):
@@ -444,21 +470,7 @@ def view_all_tasks(task_manager: TaskManager):
     print("_" * TERMINAL_PRINT_WIDTH)
 
     for task in task_manager.tasks:
-        is_complete = "Yes" if task.is_complete else "No"
-
-        # Using the `textwrap` library to make the longer strings look neater
-        print(
-            f"\nTask:\t\t{textwrap.fill(task.title, TERMINAL_PRINT_WIDTH, subsequent_indent='\t\t')}",
-        )
-        print(f"Assigned to:\t{task.assigned_to}")
-        print(f"Assigned by:\t{task.assigned_by}")
-        print(f"Date assigned:\t{task.date_assigned}")
-        print(f"Due date:\t{task.due_date}")
-        print(f"Task complete?\t{is_complete}")
-        print(
-            f"Task description:\n    {textwrap.fill(task.description, TERMINAL_PRINT_WIDTH, subsequent_indent='    ')}",
-        )
-        print("_" * TERMINAL_PRINT_WIDTH)
+        task.display()
 
     print(f"\nThere are a total of {len(task_manager.tasks)} tasks.")
 
@@ -486,22 +498,7 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
 
     # starting from 1 for aesthetics, later on there is logic to handle correct index use
     for task_number, task in enumerate(my_tasks, start=1):
-        is_complete = "Yes" if task.is_complete else "No"
-
-        print()
-        print(f"Task number:\t{task_number}")
-        print(
-            f"Task:\t\t{textwrap.fill(task.title, TERMINAL_PRINT_WIDTH, subsequent_indent='\t\t')}",
-        )
-        print(f"Assigned to:\t{task.assigned_to}")
-        print(f"Assigned by:\t{task.assigned_by}")
-        print(f"Date assigned:\t{task.date_assigned}")
-        print(f"Due date:\t{task.due_date}")
-        print(f"Task complete?\t{is_complete}")
-        print(
-            f"Task description:\n    {textwrap.fill(task.description, TERMINAL_PRINT_WIDTH, subsequent_indent='    ')}",
-        )
-        print("_" * TERMINAL_PRINT_WIDTH)
+        task.display(task_number=task_number)
 
     # Logic to edit tasks for current user
     input_index = get_valid_task_number(my_tasks)
@@ -577,19 +574,7 @@ def view_completed_tasks(task_manager: TaskManager):
     print()
     print("_" * TERMINAL_PRINT_WIDTH)
     for task in completed_tasks:
-        # Using the `textwrap` library to make the longer strings look neater
-        print(
-            f"\nTask:\t\t{textwrap.fill(task.title, TERMINAL_PRINT_WIDTH, subsequent_indent='\t\t')}",
-        )
-        print(f"Assigned to:\t{task.assigned_to}")
-        print(f"Assigned by:\t{task.assigned_by}")
-        print(f"Date assigned:\t{task.date_assigned}")
-        print(f"Due date:\t{task.due_date}")
-        print("Task complete?\tYes")
-        print(
-            f"Task description:\n    {textwrap.fill(task.description, TERMINAL_PRINT_WIDTH, subsequent_indent='    ')}",
-        )
-        print("_" * TERMINAL_PRINT_WIDTH)
+        task.display()
 
     print(f"\nNumber of completed tasks: {len(completed_tasks)}\n")
 
@@ -608,22 +593,7 @@ def delete_task(task_manager: TaskManager):
 
     # starting from 1 for aesthetics, later on there is logic to handle correct index use
     for task_number, task in enumerate(task_manager.tasks, start=1):
-        is_complete = "Yes" if task.is_complete else "No"
-
-        print()
-        print(f"Task number:\t{task_number}")
-        print(
-            f"Task:\t\t{textwrap.fill(task.title, TERMINAL_PRINT_WIDTH, subsequent_indent='\t\t')}",
-        )
-        print(f"Assigned to:\t{task.assigned_to}")
-        print(f"Assigned by:\t{task.assigned_by}")
-        print(f"Date assigned:\t{task.date_assigned}")
-        print(f"Due date:\t{task.due_date}")
-        print(f"Task complete?\t{is_complete}")
-        print(
-            f"Task description:\n    {textwrap.fill(task.description, TERMINAL_PRINT_WIDTH, subsequent_indent='    ')}",
-        )
-        print("_" * TERMINAL_PRINT_WIDTH)
+        task.display(task_number=task_number)
 
     while True:
         input_index = get_valid_task_number(task_manager.tasks)
