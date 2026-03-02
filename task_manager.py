@@ -6,14 +6,16 @@ from getpass import getpass  # To obfuscate the password input in the terminal
 from pathlib import Path  # The recommended approach to filepath management
 
 # ==== Constants Section ====
-USER_FILE_PATH = Path(Path(__file__).parent / "user.txt")
-TASKS_FILE_PATH = Path(Path(__file__).parent / "tasks.txt")
-TASK_OVERVIEW_FILE_PATH = Path(Path(__file__).parent / "task_overview.txt")
-USER_OVERVIEW_FILE_PATH = Path(Path(__file__).parent / "user_overview.txt")
-EXPECTED_USER_FIELDS = 3
-EXPECTED_TASKS_FIELDS = 7
-TERMINAL_PRINT_WIDTH = 80
-DATETIME_FORMAT = "%d-%m-%Y"
+USER_FILE_PATH = Path(__file__).parent / "user.txt"
+TASKS_FILE_PATH = Path(__file__).parent / "tasks.txt"
+TASK_OVERVIEW_FILE_PATH = Path(__file__).parent / "task_overview.txt"
+USER_OVERVIEW_FILE_PATH = Path(__file__).parent / "user_overview.txt"
+EXPECTED_USER_FIELDS = 3  # The number of columns in the user.txt file
+EXPECTED_TASKS_FIELDS = 7  # The number of columns in the tasks.txt file
+TERMINAL_PRINT_WIDTH = 80  # This is for styling the output to the CLI
+DATETIME_FORMAT = (
+    "%d-%m-%Y"  # This is for the strftime method used in the datetime class
+)
 
 
 # ==== Class Section ====
@@ -24,9 +26,9 @@ class User:
         """
         Initialise the User object.
 
-        :param username: Users username
+        :param username: User's username
         :type username: str
-        :param password: Users password
+        :param password: User's password
         :type password: str
         """
         self.username = username
@@ -75,9 +77,9 @@ class Admin(User):
         """
         Initialise the Admin object.
 
-        :param username: Admins username
+        :param username: Admin's username
         :type username: str
-        :param password: Admins password
+        :param password: Admin's password
         :type password: str
         """
         super().__init__(username, password)
@@ -175,8 +177,8 @@ class Task:
         :type title: str
         :param description: Task description
         :type description: str
-        :param assigned_date: Date task was assigned
-        :type assigned_date: str
+        :param date_assigned: Date task was assigned
+        :type date_assigned: str
         :param due_date: Date task is due
         :type due_date: str
         """
@@ -192,7 +194,7 @@ class Task:
         """
         Convert and return the assigned values in the object to a CSV string format.
 
-        Also changes the bool value of `is_completed` to "Yes" or "No".
+        Also changes the bool value of `self.is_complete` to "Yes" or "No".
 
         :return: A string of all the assigned values in the object
         :rtype: str
@@ -280,12 +282,11 @@ def login(user_manager: UserManager) -> User:
 
     :param user_manager: UserManager object that contains the users list
     :type user_manager: UserManager
-    :return: The User or Admin object for the username and password entered
+    :return: The User object for the username and password entered
     :rtype: User
     """
     while True:
         input_username = input("Username: ")
-        # Using getpass library to obfuscate the password when it's entered in the CLI
         input_password = getpass("Password: ")
 
         for user in user_manager.users:
@@ -293,8 +294,8 @@ def login(user_manager: UserManager) -> User:
                 print("\nYou've successfully logged in!")
                 return user
 
-            # Printing that username or password is incorrect to not let unauthorised persons know
-            # if they got a username correct.
+        # Printing that username or password is incorrect to not let unauthorised persons know
+        # if they got a username correct.
         print("\nThe username or password you've entered is incorrect")
         retry = input("would you like to try again? (y/n): ")
 
@@ -305,7 +306,7 @@ def login(user_manager: UserManager) -> User:
 
 def display_existing_users(user_manager: UserManager):
     """
-    Prints out a comma separated row of all existing users sorted in alphabetical order.
+    Prints out a comma-separated row of all existing users sorted in alphabetical order.
 
     :param user_manager: UserManager object that contains the users list
     :type user_manager: UserManager
@@ -321,7 +322,7 @@ def add_task(current_user: User, task_manager: TaskManager, user_manager: UserMa
     Take inputs from a user to add a task.
 
     Checks against existing users to validate that the user exists.
-    Validates the due date inputted.
+    Validates the due date input.
 
     :param current_user: The current user object of the user that is logged in
     :type current_user: User
@@ -349,9 +350,7 @@ def add_task(current_user: User, task_manager: TaskManager, user_manager: UserMa
 
         while True:
             input_due_date = input("\tDue Date (e.g. 24-04-2025): ")
-            # Using a try/except statement along with the datetime library to
-            # make sure the date entered by the user is in the correct format.
-            # This could help later on when generating reports
+            # Enforce strict date formatting to ensure report generation works correctly later.
             try:
                 datetime.strptime(input_due_date, DATETIME_FORMAT).replace(
                     tzinfo=timezone.utc,
@@ -383,8 +382,7 @@ def add_task(current_user: User, task_manager: TaskManager, user_manager: UserMa
         input_due_date,
     )
 
-    # Add the task to the TaskManager object in memory and save all tasks to file to keep it
-    # in line with what is in memory
+    # Append task to memory and immediately synchronise with the text file.
     task_manager.tasks.append(task)
     task_manager.save_tasks()
 
@@ -393,14 +391,16 @@ def add_task(current_user: User, task_manager: TaskManager, user_manager: UserMa
 
 def register_user(user_manager: UserManager):
     """
-    Register a new user by taking inputs from an admin.
+    Register a new user via terminal input.
+
+    Password inputs are obfuscated using the `getpass` library.
 
     :param user_manager: UserManager object that contains the users list
     :type user_manager: UserManager
     """
     print("Enter new user details:")
 
-    # Get existing users to make sure the new username isn't already in the user file
+    # Fetch existing users to prevent duplicate usernames.
     display_existing_users(user_manager)
     existing_users = user_manager.get_users()
     while True:
@@ -430,12 +430,12 @@ def register_user(user_manager: UserManager):
 
 def view_all_tasks(task_manager: TaskManager):
     """
-    Print all tasks to the command line in a neat formatted manner.
+    Print all tasks to the command line in a neatly formatted manner.
 
     :param task_manager: The TaskManager object that manages current tasks
     :type task_manager: TaskManager
     """
-    # This is used for styling the width of the printout
+    # This is used for styling the width of the output to the CLI
     print("_" * TERMINAL_PRINT_WIDTH)
 
     tasks = task_manager.tasks
@@ -460,12 +460,14 @@ def view_all_tasks(task_manager: TaskManager):
 
 def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserManager):
     """
-    Print only the current users tasks to the command line in a neat formatted manner.
+    Display the current user's tasks in a neatly formatted manner and provide an interactive menu to edit task details.
 
     :param current_user: The current user object of the user that is logged in
     :type current_user: User
     :param task_manager: The TaskManager object that manages current tasks
     :type task_manager: TaskManager
+    :param user_manager: UserManager object that contains the users list
+    :type user_manager: UserManager
     """
     my_tasks: list[Task] = task_manager.get_user_tasks(current_user.username)
 
@@ -527,9 +529,7 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
         if edit_menu == "d":
             while True:
                 input_due_date = input("\tDue Date (e.g. 24-04-2025): ")
-                # Using a try/except statement along with the datetime library to
-                # make sure the date entered by the user is in the correct format.
-                # This could help later on when generating reports
+                # Enforce strict date formatting to ensure report generation works correctly later.
                 try:
                     datetime.strptime(input_due_date, DATETIME_FORMAT).replace(
                         tzinfo=timezone.utc,
@@ -556,7 +556,7 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
 
 def view_completed_tasks(task_manager: TaskManager):
     """
-    View all completed tasks. Can only be accessed by an Admin.
+    View all completed tasks.
 
     :param task_manager: The TaskManager object that manages current tasks
     :type task_manager: TaskManager
@@ -586,11 +586,11 @@ def view_completed_tasks(task_manager: TaskManager):
 
 def delete_task(task_manager: TaskManager):
     """
-    Delete a task. Can only be accessed by an Admin.
+    Delete a task.
 
     :param task_manager: The TaskManager object that manages current tasks
     :type task_manager: TaskManager
-    :return: Returns to exit function with no task deleted
+    :return: Returns early (None) if the user chooses to exit the selection
     :rtype: None
     """
     print("Select the task number you want to delete...")
@@ -641,7 +641,7 @@ def get_valid_task_number(task_manager: TaskManager) -> int | None:
 
     :param task_manager: The TaskManager object that manages current tasks
     :type task_manager: TaskManager
-    :return: Returns the user input or `None` if user exits this function
+    :return: Returns the valid task number, or None if the user exits or selects a completed task
     :rtype: int | None
     """
     try:
@@ -667,7 +667,7 @@ def generate_report(task_manager: TaskManager, user_manager: UserManager):
     """
     Takes all the data from the TaskManager and UserManager objects to generate a report.
 
-    Output the reports to files.
+    Outputs the reports to files.
 
     :param task_manager: The TaskManager object that manages current tasks
     :type task_manager: TaskManager
@@ -684,6 +684,8 @@ def generate_report(task_manager: TaskManager, user_manager: UserManager):
         [task for task in task_manager.tasks if task.is_complete],
     )
     total_incomplete_tasks = total_tasks - total_completed_tasks
+
+    # An overdue task is strictly defined as incomplete and having a due date in the past
     total_overdue_tasks = len(
         [
             task
@@ -696,6 +698,7 @@ def generate_report(task_manager: TaskManager, user_manager: UserManager):
         ],
     )
 
+    # Using a ternary operator to prevent division by zero if the system has no tasks for all percentage calculations
     percentage_incomplete_tasks: float = (
         round((total_incomplete_tasks / total_tasks) * 100, 2)
         if total_tasks != 0
@@ -741,6 +744,7 @@ def generate_report(task_manager: TaskManager, user_manager: UserManager):
             ],
         )
 
+        # Using a ternary operator to prevent division by zero if the system has no tasks for all percentage calculations
         percentage_user_total_tasks: float = (
             round((total_user_tasks / total_tasks) * 100, 2) if total_tasks != 0 else 0
         )
@@ -788,6 +792,7 @@ def display_statistics(task_manager: TaskManager, user_manager: UserManager):
     :param user_manager: UserManager object that contains the users list
     :type user_manager: UserManager
     """
+    # Ensure report files exist before attempting to read them, generating them if necessary
     if not Path.exists(TASK_OVERVIEW_FILE_PATH) or not Path.exists(
         USER_OVERVIEW_FILE_PATH,
     ):
@@ -841,18 +846,27 @@ def display_statistics(task_manager: TaskManager, user_manager: UserManager):
                 percentage_user_total_incomplete_tasks,
                 percentage_user_overdue_tasks,
             ) = line.strip().split(", ")
+
+            # Print each user's stats, aligning strings to the left and floats to the right to match the header widths
             print(
                 f"| {username:<8} | {int(total_user_tasks):<5} | {float(percentage_user_total_tasks):>9.2f} | {float(percentage_user_total_completed_tasks):>13.2f} | {float(percentage_user_total_incomplete_tasks):>14.2f} | {float(percentage_user_overdue_tasks):>11.2f} |",
             )
     print("-" * table_width)
 
 
-# ==== Main program loop Section ====
+# ==== Main Program Loop Section ====
 def main():
+    """
+    The main execution loop for the task management program.
+
+    Initialises data managers, handles user authentication, and
+    routes menu selections to the appropriate functions.
+    """
     task_manager = TaskManager(TASKS_FILE_PATH)
     user_manager = UserManager(USER_FILE_PATH)
+
     # Assigns the relevant User|Admin object to current_user
-    # Also this way the menu inputs from the user is validated by the User|Admin object
+    # Also this way the menu inputs from the user are validated by the User|Admin object
     current_user = login(user_manager)
 
     while True:
