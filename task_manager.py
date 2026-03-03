@@ -43,6 +43,7 @@ class User:
         :rtype: str
         """
         return (
+            "\nMAIN MENU\n"
             "\nSelect one of the following options:\n"
             "\ta  - add task\n"
             "\tva - view all tasks\n"
@@ -93,6 +94,7 @@ class Admin(User):
         :rtype: str
         """
         return (
+            "\nMAIN MENU\n"
             "\nSelect one of the following options:\n"
             "\tr   - register a user\n"
             "\ta   - add task\n"
@@ -322,8 +324,8 @@ def login(user_manager: UserManager) -> User:
     :rtype: User
     """
     while True:
-        input_username = input("\tUsername: ")
-        input_password = getpass("\tPassword: ")
+        input_username = input("Username: ")
+        input_password = getpass("Password: ")
 
         for user in user_manager.users:
             if input_username == user.username and input_password == user.password:
@@ -332,11 +334,11 @@ def login(user_manager: UserManager) -> User:
 
         # Printing that username or password is incorrect to not let unauthorised persons know
         # if they got a username correct.
-        print("\nThe username or password you've entered is incorrect")
-        retry = input("would you like to try again? (y/n): ")
+        print("\nThe username and/or password you've entered are incorrect")
+        retry = input("\nWould you like to try again? (y/n): ")
 
         if retry != "y":
-            print("\t***** Exiting program *****")
+            print("\n\t***** Exiting Program, Goodbye *****")
             sys.exit()
 
 
@@ -367,21 +369,16 @@ def add_task(current_user: User, task_manager: TaskManager, user_manager: UserMa
     :param user_manager: UserManager object that contains the users list
     :type user_manager: UserManager
     """
+    print("_" * TERMINAL_PRINT_WIDTH)
+    print("\nADD TASK\n")
     print("\nEnter task details...")
     assigned_by = current_user.username
 
     while True:
         # Logic to make sure the entered user exists
-        while True:
-            display_existing_users(user_manager)
-            existing_users = user_manager.get_users()
-            input_assigned_to = input("\n\tAssign to: ")
-            if input_assigned_to not in existing_users:
-                print("\nUser does not exist, try again...\n")
-                continue
-            break
+        input_assigned_to = get_valid_user(user_manager)
 
-        # Ensure the tasks.txt file doesn't break buy replacing commas if the user uses them
+        # Ensure the tasks.txt file doesn't break by replacing commas if the user uses them
         input_title = input("\tTitle: ").replace(",", ";")
         input_description = input("\tDescription: ").replace(",", ";")
 
@@ -414,7 +411,7 @@ def add_task(current_user: User, task_manager: TaskManager, user_manager: UserMa
     task_manager.tasks.append(task)
     task_manager.save_tasks()
 
-    print("\n\t***** Task added to file *****")
+    print("\n\t***** Task Added to File *****")
 
 
 def register_user(user_manager: UserManager):
@@ -426,13 +423,15 @@ def register_user(user_manager: UserManager):
     :param user_manager: UserManager object that contains the users list
     :type user_manager: UserManager
     """
+    print("_" * TERMINAL_PRINT_WIDTH)
+    print("\nREGISTER NEW USER\n")
     print("\nEnter new user details...")
 
     # Fetch existing users to prevent duplicate usernames.
     display_existing_users(user_manager)
     existing_users = user_manager.get_users()
     while True:
-        input_username = input("\n\tUsername: ")
+        input_username = input("\n\tNew Username: ")
         if input_username not in existing_users:
             break
         print("User already exists, try username again...")
@@ -445,7 +444,7 @@ def register_user(user_manager: UserManager):
         print("\nPasswords don't match, try password again...")
 
     while True:
-        input_is_admin = input("Give this user admin privileges? (y/n) ").lower()
+        input_is_admin = input("Give this user admin privileges? (y/n): ").lower()
 
         if input_is_admin == "y":
             user_manager.users.append(Admin(input_username, input_password))
@@ -457,7 +456,7 @@ def register_user(user_manager: UserManager):
 
     user_manager.save_users()
 
-    print("\n\t***** New user registered *****")
+    print("\n\t***** New User Registered *****")
 
 
 def view_all_tasks(task_manager: TaskManager):
@@ -468,6 +467,13 @@ def view_all_tasks(task_manager: TaskManager):
     :type task_manager: TaskManager
     """
     # This is used for styling the width of the output to the CLI
+    print("_" * TERMINAL_PRINT_WIDTH)
+    print("\nVIEW ALL TASKS")
+
+    if len(task_manager.tasks) == 0:
+        print("\nThere are no tasks...")
+        return
+
     print("_" * TERMINAL_PRINT_WIDTH)
 
     for task in task_manager.tasks:
@@ -489,11 +495,13 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
     """
     my_tasks: list[Task] = task_manager.get_user_tasks(current_user.username)
 
+    print("_" * TERMINAL_PRINT_WIDTH)
+    print("\nVIEW MY TASKS")
+
     if len(my_tasks) == 0:
         print("You have no tasks assigned to you...")
         return
 
-    print("_" * TERMINAL_PRINT_WIDTH)
     print(f"\nNumber of tasks assigned to you: {len(my_tasks)}")
     print("_" * TERMINAL_PRINT_WIDTH)
 
@@ -501,6 +509,8 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
     for task_number, task in enumerate(my_tasks, start=1):
         task.display(task_number=task_number)
 
+    print(f"\nNumber of tasks assigned to you: {len(my_tasks)}")
+    print("\n\tTo edit a task,")
     # Logic to edit tasks for current user
     input_index = get_valid_task_number(my_tasks)
     if not input_index:
@@ -510,44 +520,41 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
     corrected_index = input_index - 1
 
     print(
-        f"\nTask number {input_index} to be edited. Select one of the following options:\n"
+        f"\nTask number {input_index} can be edited. Select one of the following options:\n"
         "\tu - change user this task is assigned to\n"
         "\td - change due date\n"
         "\tc - mark task as complete\n",
+        "\te - return to main menu\n",
     )
 
     while True:
         edit_menu = input("Enter selection: ")
         if edit_menu == "u":  # Change assigned user
-            display_existing_users(user_manager)
-            existing_users = user_manager.get_users()
-            while True:
-                input_username = input("\n\tAssign to: ")
-                if input_username in existing_users:
-                    break
-                print("User doesn't exist, try again...")
-            my_tasks[corrected_index].assigned_to = input_username
+            my_tasks[corrected_index].assigned_to = get_valid_user(user_manager)
             print(
-                f"\nTask assigned to new user {my_tasks[corrected_index].assigned_to}",
+                f"\nTask assigned to new user {my_tasks[corrected_index].assigned_to}\n",
             )
             break
 
         if edit_menu == "d":  # Change due date
-            input_due_date = get_valid_date("\tDue Date (e.g. 24-04-2025): ")
+            input_due_date = get_valid_date("\tNew Due Date (e.g. 24-04-2025): ")
             my_tasks[corrected_index].due_date = input_due_date
-            print(f"Due date changed to {my_tasks[corrected_index].due_date}")
+            print(f"\nDue date changed to {my_tasks[corrected_index].due_date}\n")
             break
 
         if edit_menu == "c":  # Mark as complete
             my_tasks[corrected_index].complete_task()
-            print(f"Task: {my_tasks[corrected_index].title} marked as completed")
+            print(f"\nTask: {my_tasks[corrected_index].title} marked as completed\n")
             break
+
+        if edit_menu == "e":
+            return
 
         print("You have entered an invalid input, please try again...")
 
     task_manager.save_tasks()
 
-    print("\t***** Updated task saved to file *****")
+    print("\t***** Updated Task Saved to File *****")
 
 
 def view_completed_tasks(task_manager: TaskManager):
@@ -558,16 +565,20 @@ def view_completed_tasks(task_manager: TaskManager):
     :type task_manager: TaskManager
     """
     completed_tasks = [task for task in task_manager.tasks if task.is_complete]
+
+    print("_" * TERMINAL_PRINT_WIDTH)
+    print("\nVIEW MY TASKS")
+    print(f"\nNumber of completed tasks: {len(completed_tasks)}")
+
     if not completed_tasks:
         print("There are no completed tasks yet...\n")
         return
 
-    print()
     print("_" * TERMINAL_PRINT_WIDTH)
     for task in completed_tasks:
         task.display()
 
-    print(f"\nNumber of completed tasks: {len(completed_tasks)}\n")
+    print(f"\nNumber of completed tasks: {len(completed_tasks)}")
 
 
 def delete_task(task_manager: TaskManager):
@@ -579,14 +590,15 @@ def delete_task(task_manager: TaskManager):
     :return: Returns early (None) if the user chooses to exit the selection
     :rtype: None
     """
-    print("\nSelect the task number you want to delete...")
     print("_" * TERMINAL_PRINT_WIDTH)
+    print("\nDELETE TASK")
 
     # starting from 1 for aesthetics, later on there is logic to handle correct index use
     for task_number, task in enumerate(task_manager.tasks, start=1):
         task.display(task_number=task_number)
 
     while True:
+        print("\n\tTo delete a task,")
         input_index = get_valid_task_number(task_manager.tasks, allow_completed=True)
         if not input_index:
             return
@@ -602,7 +614,7 @@ def delete_task(task_manager: TaskManager):
     task_manager.tasks.pop(corrected_index)
     task_manager.save_tasks()
 
-    print("\t***** Task deleted *****")
+    print("\t***** Task Deleted *****")
 
 
 def get_valid_task_number(
@@ -625,23 +637,23 @@ def get_valid_task_number(
 
     try:
         user_input = int(
-            input("\n\tEnter task number, or -1 to return to main menu: "),
+            input("\tEnter task number, or -1 to return to main menu: "),
         )
     except ValueError:
-        print("You have entered an invalid input, please try again...")
+        print("\nYou have entered an invalid input, please try again...")
         return get_valid_task_number(tasks, allow_completed=allow_completed)
     else:
         if user_input == -1:
             return None
 
     if user_input < -1 or user_input > len(tasks) or user_input == 0:
-        print("You have entered an invalid input, please try again...")
+        print("\nYou have entered an invalid input, please try again...")
         return get_valid_task_number(tasks, allow_completed=allow_completed)
 
     # Check if completed tasks should be blocked
     if not allow_completed and tasks[user_input - 1].is_complete:
         print(
-            "This task is complete and cannot be edited, please try again...\n",
+            "\nThis task is complete and cannot be edited, please try again...",
         )
         return get_valid_task_number(tasks, allow_completed=allow_completed)
 
@@ -666,6 +678,23 @@ def get_valid_date(prompt: str) -> str:
             return user_input
 
 
+def get_valid_user(user_manager: UserManager) -> str:
+    """
+    Prompt for and validate an existing user.
+
+    :param user_manager: UserManager object that contains the users list
+    :type user_manager: UserManager
+    """
+    display_existing_users(user_manager)
+    existing_users = user_manager.get_users()
+
+    while True:
+        input_username = input("\n\tAssign to: ")
+        if input_username in existing_users:
+            return input_username
+        print("User doesn't exist, try again...")
+
+
 def generate_report(task_manager: TaskManager, user_manager: UserManager):
     """
     Takes all the data from the TaskManager and UserManager objects to generate a report.
@@ -677,6 +706,8 @@ def generate_report(task_manager: TaskManager, user_manager: UserManager):
     :param user_manager: UserManager object that contains the users list
     :type user_manager: UserManager
     """
+    print("_" * TERMINAL_PRINT_WIDTH)
+    print("\nGENERATING REPORT...")
     date_report_generated = datetime.now(tz=timezone.utc).strftime(
         f"{DATETIME_FORMAT} %H:%M",
     )
@@ -783,7 +814,7 @@ def generate_report(task_manager: TaskManager, user_manager: UserManager):
                 f"{username}, {stats['total_tasks']}, {stats['%_total_tasks']}, {stats['%_complete_tasks']}, {stats['%_incomplete_tasks']}, {stats['%_overdue_tasks']}\n",
             )
 
-    print("\n\t***** Tasks and Users report generated *****")
+    print("\n\t***** Tasks/Users Report Generated *****")
 
 
 def display_statistics(task_manager: TaskManager, user_manager: UserManager):
@@ -795,6 +826,9 @@ def display_statistics(task_manager: TaskManager, user_manager: UserManager):
     :param user_manager: UserManager object that contains the users list
     :type user_manager: UserManager
     """
+    print("_" * TERMINAL_PRINT_WIDTH)
+    print("\nDISPLAY STATISTICS")
+
     lw = 19  # Label width for text alignment when printing to the CLI
     # Ensure report files exist and actually have data before reading
     if (
@@ -873,8 +907,7 @@ def main():
     user_manager = UserManager(USER_FILE_PATH)
 
     print("_" * TERMINAL_PRINT_WIDTH)
-    print("\n\tWelcome to Your Task Manager")
-    print("\nPlease login")
+    print("\n\tWelcome to Your Task Manager, Please Login\n")
 
     # Assigns the relevant User|Admin object to current_user
     # Also this way the menu inputs from the user are validated by the User|Admin object
