@@ -338,7 +338,9 @@ def login(user_manager: UserManager) -> User:
         retry = input("\nWould you like to try again? (y/n): ")
 
         if retry != "y":
+            print("_" * TERMINAL_PRINT_WIDTH)
             print("\n\t***** Exiting Program, Goodbye *****")
+            print("_" * TERMINAL_PRINT_WIDTH)
             sys.exit()
 
 
