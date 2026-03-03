@@ -256,9 +256,9 @@ class TaskManager:
         """Load all tasks from the tasks source into a `tasks` list in this object."""
         if not self.file_path.exists():
             print(
-                "\t***** Tasks file does not exist, please add it and run this program again *****",
+                "\t***** Tasks file does not exist, creating a blank new tasks file *****",
             )
-            sys.exit()
+            TASKS_FILE_PATH.touch()
 
         with self.file_path.open(encoding="utf-8") as file:
             for line in file:
