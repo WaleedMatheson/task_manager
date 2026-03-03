@@ -433,63 +433,20 @@ def register_user(user_manager: UserManager):
         f"Passwords must be at least {minimum_password_length} characters long and cannot contain commas (,)",
     )
 
-    # Fetch existing users to prevent duplicate usernames.
-    display_existing_users(user_manager)
-    existing_users = user_manager.get_users()
-
-    # User Validation loop
-    while True:
-        input_username = input("\n\tNew Username: ")
-
-        if not input_username.strip():
-            print("Username cannot be empty, try username again...")
-            continue
-
-        # The new alphanumeric check
-        if not input_username.isalnum():
-            print(
-                "Username must only contain letters and numbers (no spaces or symbols), try username again...",
-            )
-            continue
-
-        if input_username in existing_users:
-            print("User already exists, try username again...")
-            continue
-
-        break
-
-    # Password Validation Loop
-    while True:
-        input_password = getpass("\tPassword: ")
-
-        # Check if it meets the minimum length requirement
-        if len(input_password) < minimum_password_length:
-            print("\nPassword must be at least 8 characters long. Please try again...")
-            continue
-
-        # Check if there are any commas in the password
-        if "," in input_password:
-            print("Password cannot contain commas, try password again...")
-            continue
-
-        repeat_password = getpass("\tRepeat password: ")
-
-        if input_password != repeat_password:
-            print("\nPasswords don't match, try password again...")
-            continue
-
-        break
+    # Get validated inputs via helper functions
+    new_username = get_new_username(user_manager)
+    new_password = get_new_password(min_length=minimum_password_length)
 
     # Admin Assignment Loop
     while True:
         input_is_admin = input("Give this user admin privileges? (y/n): ").lower()
 
         if input_is_admin == "y":
-            user_manager.users.append(Admin(input_username, input_password))
+            user_manager.users.append(Admin(new_username, new_password))
             break
 
         if input_is_admin == "n":
-            user_manager.users.append(User(input_username, input_password))
+            user_manager.users.append(User(new_username, new_password))
             break
 
         print("You have entered an invalid input, please try again...\n")
@@ -733,6 +690,57 @@ def get_valid_user(user_manager: UserManager) -> str:
         if input_username in existing_users:
             return input_username
         print("User doesn't exist, try again...")
+
+
+def get_new_username(user_manager: UserManager) -> str:
+    """
+    Helper to prompt for and validate a unique, alphanumeric username.
+
+    :param user_manager: UserManager object that contains the users list
+    :type user_manager: UserManager
+    :return: The validated username
+    :rtype: str
+    """
+    # Fetch existing users to prevent duplicate usernames.
+    display_existing_users(user_manager)
+    existing_users = user_manager.get_users()
+    while True:
+        username = input("\n\tNew Username: ").strip()
+        if not username:
+            print("Username cannot be empty, try again...")
+            continue
+        if not username.isalnum():
+            print("Username must be alphanumeric (no spaces/symbols), try again...")
+            continue
+        if username in existing_users:
+            print("User already exists, try again...")
+            continue
+        return username
+
+
+def get_new_password(min_length: int = 8) -> str:
+    """
+    Helper to prompt for and validate a secure password.
+
+    :param min_length: Minimum password length, defaults to 8
+    :type min_length: int, optional
+    :return: The validated password
+    :rtype: str
+    """
+    while True:
+        password = getpass("\tPassword: ")
+        if len(password) < min_length:
+            print(f"\nPassword must be at least {min_length} characters, try again...")
+            continue
+        if "," in password:
+            print("Password cannot contain commas, try again...")
+            continue
+
+        repeat = getpass("\tRepeat password: ")
+        if password != repeat:
+            print("\nPasswords do not match, try again...")
+            continue
+        return password
 
 
 def generate_report(task_manager: TaskManager, user_manager: UserManager):
