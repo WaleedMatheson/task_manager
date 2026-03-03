@@ -451,7 +451,7 @@ def register_user(user_manager: UserManager):
             user_manager.users.append(User(new_username, new_password))
             break
 
-        print("You have entered an invalid input, please try again...\n")
+        print("Invalid input, please try again...\n")
 
     user_manager.save_users()
 
@@ -497,7 +497,7 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
     print("_" * TERMINAL_PRINT_WIDTH)
     print("\nVIEW MY TASKS")
 
-    if len(my_tasks) == 0:
+    if not my_tasks:
         print("You have no tasks assigned to you...")
         return
 
@@ -511,49 +511,16 @@ def view_mine(current_user: User, task_manager: TaskManager, user_manager: UserM
     print(f"\nNumber of tasks assigned to you: {len(my_tasks)}")
     print("\n\tTo edit a task,")
     # Logic to edit tasks for current user
-    input_index = get_valid_task_number(my_tasks)
-    if not input_index:
+    input_task_number = get_valid_task_number(my_tasks)
+    if not input_task_number:
         return
 
-    # This is correcting the index so editing the Task objects in the list works correctly
-    corrected_index = input_index - 1
+    task_to_edit = my_tasks[input_task_number - 1]
+    changes_made = handle_task_edit(task_to_edit, user_manager)
 
-    print(
-        f"\nTask number {input_index} can be edited. Select one of the following options:\n"
-        "\tu - change user this task is assigned to\n"
-        "\td - change due date\n"
-        "\tc - mark task as complete\n",
-        "\te - return to main menu\n",
-    )
-
-    while True:
-        edit_menu = input("Enter selection: ")
-        if edit_menu == "u":  # Change assigned user
-            my_tasks[corrected_index].assigned_to = get_valid_user(user_manager)
-            print(
-                f"\nTask assigned to new user {my_tasks[corrected_index].assigned_to}\n",
-            )
-            break
-
-        if edit_menu == "d":  # Change due date
-            input_due_date = get_valid_date("\tNew Due Date (e.g. 24-04-2025): ")
-            my_tasks[corrected_index].due_date = input_due_date
-            print(f"\nDue date changed to {my_tasks[corrected_index].due_date}\n")
-            break
-
-        if edit_menu == "c":  # Mark as complete
-            my_tasks[corrected_index].complete_task()
-            print(f"\nTask: {my_tasks[corrected_index].title} marked as completed\n")
-            break
-
-        if edit_menu == "e":
-            return
-
-        print("You have entered an invalid input, please try again...")
-
-    task_manager.save_tasks()
-
-    print("\t***** Updated Task Saved to File *****")
+    if changes_made:
+        task_manager.save_tasks()
+        print("\t***** Updated Task Saved to File *****")
 
 
 def view_completed_tasks(task_manager: TaskManager):
@@ -616,6 +583,49 @@ def delete_task(task_manager: TaskManager):
     print("\t***** Task Deleted *****")
 
 
+def handle_task_edit(task: Task, user_manager: UserManager) -> bool:
+    """
+    Provides a sub-menu to edit a specific task's user, due date, or status.
+
+    :param task: The task to be edited
+    :type task: Task
+    :param user_manager: UserManager object that contains the users list
+    :type user_manager: UserManager
+    :return: A True if a change is made, else False
+    :rtype: bool
+    """
+    print(
+        f"\nEditing Task: '{task.title}'\n"
+        "\tu - change assigned user\n"
+        "\td - change due date\n"
+        "\tc - mark task as complete\n"
+        "\te - return to main menu\n",
+    )
+
+    while True:
+        selection = input("Enter selection: ").lower()
+
+        if selection == "u":
+            task.assigned_to = get_valid_user(user_manager)
+            print(f"\nTask reassigned to: {task.assigned_to}")
+            return True  # Signal that a change was made
+
+        if selection == "d":
+            task.due_date = get_valid_date("\tNew Due Date (e.g. 24-04-2025): ")
+            print(f"\nDue date updated to: {task.due_date}")
+            return True
+
+        if selection == "c":
+            task.complete_task()
+            print(f"\nTask '{task.title}' marked as completed.")
+            return True
+
+        if selection == "e":
+            return False  # No changes made/exited
+
+        print("Invalid input, please try again...")
+
+
 def get_valid_task_number(
     tasks: list[Task],
     *,
@@ -639,14 +649,14 @@ def get_valid_task_number(
             input("\tEnter task number, or -1 to return to main menu: "),
         )
     except ValueError:
-        print("\nYou have entered an invalid input, please try again...")
+        print("\nInvalid input, please try again...")
         return get_valid_task_number(tasks, allow_completed=allow_completed)
     else:
         if user_input == -1:
             return None
 
     if user_input < -1 or user_input > len(tasks) or user_input == 0:
-        print("\nYou have entered an invalid input, please try again...")
+        print("\nInvalid input, please try again...")
         return get_valid_task_number(tasks, allow_completed=allow_completed)
 
     # Check if completed tasks should be blocked
@@ -989,7 +999,7 @@ def main():
         while True:
             menu = input(current_user.get_menu())
             if not current_user.is_valid_command(menu):
-                print("You have entered an invalid input, please try again...")
+                print("Invalid input, please try again...")
                 continue
             break
 
