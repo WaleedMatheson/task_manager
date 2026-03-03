@@ -423,35 +423,75 @@ def register_user(user_manager: UserManager):
     :param user_manager: UserManager object that contains the users list
     :type user_manager: UserManager
     """
+    minimum_password_length = 8
+
     print("_" * TERMINAL_PRINT_WIDTH)
     print("\nREGISTER NEW USER\n")
-    print("\nEnter new user details...")
+    print("\nEnter new user details...\n")
+    print("Usernames must contain only letters and numbers")
+    print(
+        f"Passwords must be at least {minimum_password_length} characters long and cannot contain commas (,)",
+    )
 
     # Fetch existing users to prevent duplicate usernames.
     display_existing_users(user_manager)
     existing_users = user_manager.get_users()
+
+    # User Validation loop
     while True:
         input_username = input("\n\tNew Username: ")
-        if input_username not in existing_users:
-            break
-        print("User already exists, try username again...")
 
+        if not input_username.strip():
+            print("Username cannot be empty, try username again...")
+            continue
+
+        # The new alphanumeric check
+        if not input_username.isalnum():
+            print(
+                "Username must only contain letters and numbers (no spaces or symbols), try username again...",
+            )
+            continue
+
+        if input_username in existing_users:
+            print("User already exists, try username again...")
+            continue
+
+        break
+
+    # Password Validation Loop
     while True:
         input_password = getpass("\tPassword: ")
-        repeat_password = getpass("\tRepeat password: ")
-        if input_password == repeat_password:
-            break
-        print("\nPasswords don't match, try password again...")
 
+        # Check if it meets the minimum length requirement
+        if len(input_password) < minimum_password_length:
+            print("\nPassword must be at least 8 characters long. Please try again...")
+            continue
+
+        # Check if there are any commas in the password
+        if "," in input_password:
+            print("Password cannot contain commas, try password again...")
+            continue
+
+        repeat_password = getpass("\tRepeat password: ")
+
+        if input_password != repeat_password:
+            print("\nPasswords don't match, try password again...")
+            continue
+
+        break
+
+    # Admin Assignment Loop
     while True:
         input_is_admin = input("Give this user admin privileges? (y/n): ").lower()
 
         if input_is_admin == "y":
             user_manager.users.append(Admin(input_username, input_password))
             break
+
         if input_is_admin == "n":
             user_manager.users.append(User(input_username, input_password))
             break
+
         print("You have entered an invalid input, please try again...\n")
 
     user_manager.save_users()
