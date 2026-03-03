@@ -613,7 +613,7 @@ def get_valid_task_number(
     A recursive function to check if the task number entered is valid.
 
     :param tasks: A list of tasks for the current user
-    :type tasks: List[Task]
+    :type tasks: list[Task]
     :param allow_completed: Flag to determine if completed tasks can be selected
     :type allow_completed: bool
     :return: Returns the valid task number, or None if the user exits
@@ -795,8 +795,13 @@ def display_statistics(task_manager: TaskManager, user_manager: UserManager):
     :type user_manager: UserManager
     """
     lw = 19  # Label width for text alignment when printing to the CLI
-    # Ensure report files exist before attempting to read them, generating them if necessary
-    if not TASK_OVERVIEW_FILE_PATH.exists() or not USER_OVERVIEW_FILE_PATH.exists():
+    # Ensure report files exist and actually have data before reading
+    if (
+        not TASK_OVERVIEW_FILE_PATH.exists()
+        or TASK_OVERVIEW_FILE_PATH.stat().st_size == 0
+        or not USER_OVERVIEW_FILE_PATH.exists()
+        or USER_OVERVIEW_FILE_PATH.stat().st_size == 0
+    ):
         generate_report(task_manager, user_manager)
 
     ### Tasks
@@ -886,7 +891,7 @@ def main():
         "del": lambda: delete_task(task_manager),
         "ds": lambda: display_statistics(task_manager, user_manager),
         "gr": lambda: generate_report(task_manager, user_manager),
-        # For the exit, using a tuple allows the lambda to run both print and exit functions
+        # For the exit, using a tuple allows the lambda to run multiple functions
         "e": lambda: (
             print("_" * TERMINAL_PRINT_WIDTH),
             print("\n\t***** Exiting Program, Goodbye *****"),
