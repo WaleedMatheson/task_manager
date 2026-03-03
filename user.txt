@@ -1,0 +1,5 @@
+admin1, admin1, Yes
+user1, user1, No
+user2, user2, No
+user3, user3, No
+admin2, admin2, Yes

@@ -1,0 +1,21 @@
+admin1, user1, Fix Login Bug, The login page is currently hanging when a user enters an incorrect password. Needs investigating., 20-02-2026, 25-04-2026, Yes
+admin1, user3, Update User Manual, The manual needs to reflect the new registration process for admin users specifically., 21-02-2026, 01-04-2026, No
+admin1, admin1, Server Maintenance, Routine check of the database servers and clearing out old temporary log files., 22-02-2026, 23-02-2026, Yes
+user1, admin1, Quarterly Report, Gather all task statistics for the last three months and prepare a summary for the board., 15-02-2026, 05-04-2026, No
+admin1, user1, CSS Refactor, The main dashboard styles are becoming a bit messy. Please consolidate the CSS classes., 18-02-2026, 28-02-2026, Yes
+admin1, user2, Client Meeting Prep, Prepare the slide deck and gather the latest project metrics for Friday's meeting., 24-02-2026, 23-04-2026, No
+user2, user3, Security Audit, Review the current file permission settings for the users.txt and tasks.txt files., 10-02-2026, 15-02-2026, Yes
+user3, admin1, New Feature Research, Look into implementing a priority system for tasks using a scale of 1 to 5., 24-02-2026, 17-03-2026, No
+admin1, user1, Bug Triage, Go through the reported issues in the tracker and assign them to the relevant developers., 23-02-2026, 24-03-2026, No
+user1, user2, Data Entry, Transfer the legacy task records into the new text-based format for consistency., 01-02-2026, 10-02-2026, Yes
+admin1, user3, Documentation Review, Read through the internal developer documentation and check for any broken links., 20-02-2026, 05-03-2026, No
+admin1, user2, Backup Verification, Ensure that the nightly backups are running correctly and perform a test restore., 22-02-2026, 24-02-2026, Yes
+admin1, user3, UI Polish, Improve the spacing and alignment of the task display cards in the console output., 24-02-2026, 01-03-2026, No
+user3, user1, Testing Framework, Set up basic unit tests for the User and Admin class methods to ensure data integrity., 15-02-2026, 15-03-2026, No
+user2, user2, Self-Assessment, Complete the monthly performance review and submit it via the internal portal., 20-02-2026, 28-03-2026, No
+admin1, admin1, API Integration, Explore the possibility of connecting the task manager to a third-party calendar API., 10-02-2026, 10-04-2026, No
+admin1, user1, Password Policy Update, Research modern password hashing techniques to replace the current plain text storage., 24-02-2026, 15-03-2026, Yes
+user1, admin1, Hardware Inventory, List all company-issued laptops and their current assignment status for the audit., 05-02-2026, 15-02-2026, Yes
+admin1, user3, Feedback Collection, Send out a survey to all users to gather thoughts on the new CLI interface., 22-02-2026, 05-03-2026, No
+admin1, admin3, Goal Setting, Define the project roadmap for the next two quarters and share it with the team., 24-02-2026, 28-03-2026, Yes
+admin2, admin2, Fix Load Issue With Browser, Browser takes a long time to load; it could be something not related to the browser., 03-03-2026, 24-03-2026, No
