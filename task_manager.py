@@ -381,8 +381,9 @@ def add_task(current_user: User, task_manager: TaskManager, user_manager: UserMa
                 continue
             break
 
-        input_title = input("\tTitle: ")
-        input_description = input("\tDescription: ")
+        # Ensure the tasks.txt file doesn't break buy replacing commas if the user uses them
+        input_title = input("\tTitle: ").replace(",", ";")
+        input_description = input("\tDescription: ").replace(",", ";")
 
         input_due_date = get_valid_date("\tDue Date (e.g. 24-04-2025): ")
 
