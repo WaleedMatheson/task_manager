@@ -32,7 +32,8 @@ While the current version is a robust CLI tool, the following architectural enha
 
 * **Current State:** Data is stored in comma-separated `.txt` files.
 * **The Goal:** Transition to a Relational Database Management System (RDBMS) using SQLite.
-* **Why:** * **Data Integrity:** Enforce strict relationships between Users and Tasks using Foreign Keys.
+* **Why:**
+  * **Data Integrity:** Enforce strict relationships between Users and Tasks using Foreign Keys.
   * **Concurrency:** Better handling of simultaneous read/write operations.
   * **Performance:** Replace O(n) file parsing with indexed SQL queries for faster data retrieval as the task count grows.
 
