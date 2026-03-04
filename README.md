@@ -24,6 +24,29 @@ The program is split into specialised modules to ensure a **Separation of Concer
 * **`utils.py`**: A dedicated toolbox for reusable helper functions, specifically focused on recursive validation and CLI formatting.
 * **`constants.py`**: Centralised configuration for file paths, date formats, and UI styling.
 
+## Future Roadmap & Improvements
+
+While the current version is a robust CLI tool, the following architectural enhancements are planned to improve scalability and performance:
+
+### 1. Database Integration (SQLite)
+
+* **Current State:** Data is stored in comma-separated `.txt` files.
+* **The Goal:** Transition to a Relational Database Management System (RDBMS) using SQLite.
+* **Why:** * **Data Integrity:** Enforce strict relationships between Users and Tasks using Foreign Keys.
+  * **Concurrency:** Better handling of simultaneous read/write operations.
+  * **Performance:** Replace O(n) file parsing with indexed SQL queries for faster data retrieval as the task count grows.
+
+### 2. Password Hashing
+
+* **Current State:** Passwords are stored in plain text.
+* **The Goal:** Implement the `hashlib` or `bcrypt` library to store salted SHA-256 hashes.
+* **Why:** To ensure industry-standard security practices and protect user credentials in the event of a data breach.
+
+### 3. Unit Testing
+
+* **The Goal:** Implement a comprehensive test suite using `pytest`.
+* **Why:** To ensure that new features or refactors (like the SQLite transition) do not introduce regressions into the core business logic.
+
 ## How to Run the Program
 
 **Prerequisites:** Python 3.x installed on your machine.
