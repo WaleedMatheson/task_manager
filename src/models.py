@@ -1,4 +1,4 @@
-import textwrap
+import textwrap  # For styling when printing to the terminal
 
 from constants import TERMINAL_PRINT_WIDTH
 
